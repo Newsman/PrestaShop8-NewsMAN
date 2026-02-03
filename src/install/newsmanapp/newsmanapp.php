@@ -716,8 +716,8 @@ class Newsmanapp extends Module
         }
     }
 
-    public static $endpoint = 'https://retargeting.newsmanapp.com/js/retargeting/track.js';
-    public static $endpointHost = 'https://retargeting.newsmanapp.com';
+    public static $endpoint = 'https://t.newsmanapp.com/jt/t.js';
+    public static $endpointHost = 'https://t.newsmanapp.com';
 
     public function hookDisplayHeader()
     {
