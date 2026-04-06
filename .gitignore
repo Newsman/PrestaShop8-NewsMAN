@@ -1,1 +1,12 @@
-vendor
+/vendor/
+!vendor/index.php
+!vendor/.htaccess
+/node_modules/
+/_dev/
+composer.lock
+composer.phar
+.php-cs-fixer.cache
+.phpunit.result.cache
+/config_*.xml
+/translations/*.php
+!translations/index.php

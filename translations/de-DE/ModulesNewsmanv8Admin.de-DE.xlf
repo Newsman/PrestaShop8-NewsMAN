@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="Modules.Newsman.Admin.xlf" source-language="en" target-language="de" datatype="plaintext">
+    <body>
+      <trans-unit id="1731a02e8bea2637fa8e6bf89314da48" approved="yes">
+        <source>Newsman</source>
+        <target state="final">Newsman</target>
+      </trans-unit>
+      <trans-unit id="014c7bbb9e827c732a539bee7c76c894" approved="yes">
+        <source>Newsman email marketing and SMS integration for PrestaShop.</source>
+        <target state="final">Newsman E-Mail-Marketing- und SMS-Integration f&#xFC;r PrestaShop.</target>
+      </trans-unit>
+      <trans-unit id="d0190830a5ee2591114e6157164d1574" approved="yes">
+        <source>Connected to Newsman — %count% list(s) found.</source>
+        <target state="final">Mit Newsman verbunden — %count% Liste(n) gefunden.</target>
+      </trans-unit>
+      <trans-unit id="2d370a3d7f069056d753edd127a21c3b" approved="yes">
+        <source>Could not connect to Newsman. Please check your credentials or try again later (temporary API error).</source>
+        <target state="final">Verbindung zu Newsman konnte nicht hergestellt werden. Bitte &#xFC;berpr&#xFC;fen Sie Ihre Zugangsdaten oder versuchen Sie es sp&#xE4;ter erneut (tempor&#xE4;rer API-Fehler).</target>
+      </trans-unit>
+      <trans-unit id="08bd40c7543007ad06e4fce31618f6ec" approved="yes">
+        <source>Account</source>
+        <target state="final">Konto</target>
+      </trans-unit>
+      <trans-unit id="1edcdad89b3a2245d759a169da1bf5a3" approved="yes">
+        <source>User ID</source>
+        <target state="final">Benutzer-ID</target>
+      </trans-unit>
+      <trans-unit id="d876ff8da67c3731ae25d8335a4168b4" approved="yes">
+        <source>API Key</source>
+        <target state="final">API-Schl&#xFC;ssel</target>
+      </trans-unit>
+      <trans-unit id="0db377921f4ce762c62526131097968f" approved="yes">
+        <source>General</source>
+        <target state="final">Allgemein</target>
+      </trans-unit>
+      <trans-unit id="b199801586a9ac2d1275125bbed8e795" approved="yes">
+        <source>Email List</source>
+        <target state="final">E-Mail-Liste</target>
+      </trans-unit>
+      <trans-unit id="1a7c1abde79b64cdc74a51fa07414842" approved="yes">
+        <source>Select a list</source>
+        <target state="final">Liste ausw&#xE4;hlen</target>
+      </trans-unit>
+      <trans-unit id="4b77e2a9d8e9cfc299f504b32d6e3d2b" approved="yes">
+        <source>Segment</source>
+        <target state="final">Segment</target>
+      </trans-unit>
+      <trans-unit id="78519023fdcad17c1a1b1b7a5d040a60" approved="yes">
+        <source>No segment</source>
+        <target state="final">Kein Segment</target>
+      </trans-unit>
+      <trans-unit id="aeda5dd8b5b828bce21583688164e56d" approved="yes">
+        <source>Double Opt-in</source>
+        <target state="final">Double Opt-in</target>
+      </trans-unit>
+      <trans-unit id="9fc0beb1d36fa8a7e798e08ef463b78c" approved="yes">
+        <source>Send User IP</source>
+        <target state="final">Benutzer-IP senden</target>
+      </trans-unit>
+      <trans-unit id="2574a7504573259f3b6d0abca86f49a0" approved="yes">
+        <source>Server IP</source>
+        <target state="final">Server-IP</target>
+      </trans-unit>
+      <trans-unit id="ef35687718e5a5129e616d102fb9807c" approved="yes">
+        <source>Override automatic server IP detection.</source>
+        <target state="final">Automatische Server-IP-Erkennung &#xFC;berschreiben.</target>
+      </trans-unit>
+      <trans-unit id="d94ec841d1e64829b914f73fadd22e30" approved="yes">
+        <source>Export Authorization</source>
+        <target state="final">Export-Autorisierung</target>
+      </trans-unit>
+      <trans-unit id="6a7c804797a8bb913c82824a6465ede1" approved="yes">
+        <source>Header Name</source>
+        <target state="final">Header-Name</target>
+      </trans-unit>
+      <trans-unit id="69202cdeecea95992cf1f82c2b326e43" approved="yes">
+        <source>Header Key</source>
+        <target state="final">Header-Schl&#xFC;ssel</target>
+      </trans-unit>
+      <trans-unit id="bfe6cadd2a8ed6d385d6bdf0f43d3db6" approved="yes">
+        <source>Remarketing</source>
+        <target state="final">Remarketing</target>
+      </trans-unit>
+      <trans-unit id="0d381177b4015bd69155abdae8b4e07c" approved="yes">
+        <source>Enable Remarketing</source>
+        <target state="final">Remarketing aktivieren</target>
+      </trans-unit>
+      <trans-unit id="5b69013518973555e76407d3423c01e7" approved="yes">
+        <source>Remarketing ID</source>
+        <target state="final">Remarketing-ID</target>
+      </trans-unit>
+      <trans-unit id="0407c3857d21ed92671c437efd4054e3" approved="yes">
+        <source>Format: siteId-listId-formId-controlListHash</source>
+        <target state="final">Format: siteId-listId-formId-controlListHash</target>
+      </trans-unit>
+      <trans-unit id="62d498990ba9938425763b6314b5c42a" approved="yes">
+        <source>Anonymize IP</source>
+        <target state="final">IP anonymisieren</target>
+      </trans-unit>
+      <trans-unit id="60d036a2bb78268377214361bbb27b40" approved="yes">
+        <source>Send Telephone</source>
+        <target state="final">Telefonnummer senden</target>
+      </trans-unit>
+      <trans-unit id="672caf27f5363dc833bda5099775e891" approved="yes">
+        <source>Developer</source>
+        <target state="final">Entwickler</target>
+      </trans-unit>
+      <trans-unit id="d2c00bee676cbd17207f4cdf35d3e2ca" approved="yes">
+        <source>Log Severity</source>
+        <target state="final">Log-Schweregrad</target>
+      </trans-unit>
+      <trans-unit id="6adf97f83acf6453d4a6a4b1070f3754" approved="yes">
+        <source>None</source>
+        <target state="final">Keine</target>
+      </trans-unit>
+      <trans-unit id="258ad203f747a1d9f9d304273ece7617" approved="yes">
+        <source>Log Clean Days</source>
+        <target state="final">Log-Bereinigung (Tage)</target>
+      </trans-unit>
+      <trans-unit id="56dbef178c3f2547d3d4bf2c21ce3251" approved="yes">
+        <source>API Timeout (seconds)</source>
+        <target state="final">API-Timeout (Sekunden)</target>
+      </trans-unit>
+      <trans-unit id="30decd5683fb121a419d8fc127256c51" approved="yes">
+        <source>Enable IP Restriction</source>
+        <target state="final">IP-Einschr&#xE4;nkung aktivieren</target>
+      </trans-unit>
+      <trans-unit id="23a16e76c13b648d1939bf3a09aaaecc" approved="yes">
+        <source>Developer IP</source>
+        <target state="final">Entwickler-IP</target>
+      </trans-unit>
+      <trans-unit id="bb2d5ec8a4ac86b6601dd938cbadef8b" approved="yes">
+        <source>Reconfigure</source>
+        <target state="final">Neu konfigurieren</target>
+      </trans-unit>
+      <trans-unit id="1ff763f1d3812f455a371c610bd8753b" approved="yes">
+        <source>Connect to Newsman</source>
+        <target state="final">Mit Newsman verbinden</target>
+      </trans-unit>
+      <trans-unit id="98f770b0af18ca763421bac22b4b6805" approved="yes">
+        <source>Features</source>
+        <target state="final">Funktionen</target>
+      </trans-unit>
+      <trans-unit id="a73fc79124e4eeb0e8e6505eab91f3b2" approved="yes">
+        <source>Sync newsletter subscribers to Newsman</source>
+        <target state="final">Newsletter-Abonnenten mit Newsman synchronisieren</target>
+      </trans-unit>
+      <trans-unit id="4257d600eca511aca95df19ce4dda972" approved="yes">
+        <source>Remarketing and tracking scripts</source>
+        <target state="final">Remarketing- und Tracking-Skripte</target>
+      </trans-unit>
+      <trans-unit id="b76b316a86769ed68b8055b94d20dacb" approved="yes">
+        <source>Subscription forms and popups</source>
+        <target state="final">Anmeldeformulare und Popups</target>
+      </trans-unit>
+      <trans-unit id="a0cece9d48727ef701b1319faa167a55" approved="yes">
+        <source>Email and SMS automation</source>
+        <target state="final">E-Mail- und SMS-Automatisierung</target>
+      </trans-unit>
+      <trans-unit id="3ac24c043ee8b4fa56ae4a79371543e7" approved="yes">
+        <source>Product feed export</source>
+        <target state="final">Produkt-Feed-Export</target>
+      </trans-unit>
+      <trans-unit id="11035a6e3e5aceb6563c44c6e464e577" approved="yes">
+        <source>Order tracking</source>
+        <target state="final">Bestellverfolgung</target>
+      </trans-unit>
+      <trans-unit id="ae97eeb0f6137fadb27b6c1bd97bfe34" approved="yes">
+        <source>Connect with Newsman</source>
+        <target state="final">Mit Newsman verbinden</target>
+      </trans-unit>
+      <trans-unit id="ea4384c9488177a7b924b3d3f8837066" approved="yes">
+        <source>Select Email List</source>
+        <target state="final">E-Mail-Liste ausw&#xE4;hlen</target>
+      </trans-unit>
+      <trans-unit id="f4f70727dc34561dfde1a3c529b6205c" approved="yes">
+        <source>Settings</source>
+        <target state="final">Einstellungen</target>
+      </trans-unit>
+      <trans-unit id="f13e3541aad11e23b2889c4efd21dcb9" approved="yes">
+        <source>Enable Newsman</source>
+        <target state="final">Newsman aktivieren</target>
+      </trans-unit>
+      <trans-unit id="e81fce05ba80dd9da11f2b593a9a12da" approved="yes">
+        <source>Authorization in HTTP header as name. Format alphanumeric separated by hyphen-minus. Please also set it in Newsman App &gt; E-Commerce &gt; Coupons &gt; Authorisation Header name, Newsman App &gt; E-Commerce &gt; Feed &gt; a feed &gt; Header Authorization, etc.</source>
+        <target state="final">Autorisierung im HTTP-Header als Name. Format alphanumerisch, getrennt durch Bindestrich. Bitte auch in Newsman App &gt; E-Commerce &gt; Coupons &gt; Autorisierungs-Header-Name, Newsman App &gt; E-Commerce &gt; Feed &gt; ein Feed &gt; Header-Autorisierung usw. einstellen.</target>
+      </trans-unit>
+      <trans-unit id="42e68364e8c68f419af984a439f64464" approved="yes">
+        <source>Authorization in HTTP header as value. Format alphanumeric separated by hyphen-minus. Please also set it in Newsman App &gt; E-Commerce &gt; Coupons &gt; Authorisation Header value, Newsman App &gt; E-Commerce &gt; Feed &gt; a feed &gt; Header Authorization, etc.</source>
+        <target state="final">Autorisierung im HTTP-Header als Wert. Format alphanumerisch, getrennt durch Bindestrich. Bitte auch in Newsman App &gt; E-Commerce &gt; Coupons &gt; Autorisierungs-Header-Wert, Newsman App &gt; E-Commerce &gt; Feed &gt; ein Feed &gt; Header-Autorisierung usw. einstellen.</target>
+      </trans-unit>
+      <trans-unit id="626419566cbec68239f8d8286b630ab5" approved="yes">
+        <source>Connected to Newsman.</source>
+        <target state="final">Mit Newsman verbunden.</target>
+      </trans-unit>
+      <trans-unit id="2c73fe96502548fec8dc4b604a559800" approved="yes">
+        <source>Multi-Shop Notice</source>
+        <target state="final">Multi-Shop-Hinweis</target>
+      </trans-unit>
+      <trans-unit id="886f6755d9b442778ac5a1ac4c3354f4" approved="yes">
+        <source>The following shops from different Shop Groups are linked to the same Newsman list. This configuration adds complexity that may not be fully resolved in the default version of the Newsman extension.</source>
+        <target state="final">Die folgenden Shops aus verschiedenen Shop-Gruppen sind mit derselben Newsman-Liste verkn&#xFC;pft. Diese Konfiguration f&#xFC;gt Komplexit&#xE4;t hinzu, die in der Standardversion der Newsman-Erweiterung m&#xF6;glicherweise nicht vollst&#xE4;ndig gel&#xF6;st wird.</target>
+      </trans-unit>
+      <trans-unit id="d0ec7d1f9f623620c2550d02f47a9449" approved="yes">
+        <source>We recommend assigning a different list to each store.</source>
+        <target state="final">Wir empfehlen, jedem Shop eine andere Liste zuzuweisen.</target>
+      </trans-unit>
+      <trans-unit id="10f7339f7537d2ae788edfd202dfa04d" approved="yes">
+        <source>Remarketing ID Status</source>
+        <target state="final">Remarketing-ID-Status</target>
+      </trans-unit>
+      <trans-unit id="b471d428b0381c7fd41b50e56f0b49d9" approved="yes">
+        <source>Remarketing ID is valid</source>
+        <target state="final">Remarketing-ID ist g&#xFC;ltig</target>
+      </trans-unit>
+      <trans-unit id="d1626ceed3b5eed680af35989b174fe9" approved="yes">
+        <source>Remarketing ID is invalid</source>
+        <target state="final">Remarketing-ID ist ung&#xFC;ltig</target>
+      </trans-unit>
+      <trans-unit id="c2c464e8e3f071184cebb09dabe19905" approved="yes">
+        <source>No log files found. Logs will appear here once logging is enabled and events are recorded.</source>
+        <target state="final">Keine Log-Dateien gefunden. Logs werden hier angezeigt, sobald die Protokollierung aktiviert ist und Ereignisse aufgezeichnet werden.</target>
+      </trans-unit>
+      <trans-unit id="46b3eff0289269c9569c3801c3a158d4" approved="yes">
+        <source>Log file</source>
+        <target state="final">Log-Datei</target>
+      </trans-unit>
+      <trans-unit id="a0b0293a2db49f5f93c15a62e095c819" approved="yes">
+        <source>Lines</source>
+        <target state="final">Zeilen</target>
+      </trans-unit>
+      <trans-unit id="63a6a88c066880c5ac42394a22803ca6" approved="yes">
+        <source>Refresh</source>
+        <target state="final">Aktualisieren</target>
+      </trans-unit>
+      <trans-unit id="f2a6c498fb90ee345d997f888fce3b18" approved="yes">
+        <source>Delete</source>
+        <target state="final">L&#xF6;schen</target>
+      </trans-unit>
+      <trans-unit id="f5667358e08403818d7782d76880cefb" approved="yes">
+        <source>Showing %displayed% of %total% lines</source>
+        <target state="final">Anzeige von %displayed% von %total% Zeilen</target>
+      </trans-unit>
+      <trans-unit id="3c9f59bdf86d4aa0ef6e9880b1c7df13" approved="yes">
+        <source>Showing last %displayed% lines</source>
+        <target state="final">Anzeige der letzten %displayed% Zeilen</target>
+      </trans-unit>
+      <trans-unit id="54286ecfa930d239cd24b8da21107839" approved="yes">
+        <source>File size: %size%</source>
+        <target state="final">Dateigr&#xF6;&#xDF;e: %size%</target>
+      </trans-unit>
+      <trans-unit id="e75127c560dd8fe6eb06d3738a9eb89e" approved="yes">
+        <source>Log file is empty.</source>
+        <target state="final">Die Log-Datei ist leer.</target>
+      </trans-unit>
+      <trans-unit id="92a9e1b68f03b6c1e5b5d8e1a3d06a93" approved="yes">
+        <source>Authenticate Token</source>
+        <target state="final">Authentifizierungstoken</target>
+      </trans-unit>
+      <trans-unit id="752de4b2657907cc2e89b671f9f41ad1" approved="yes">
+        <source>Used for Newsman API authentication. It is exchanged automatically when the API key, User ID, enabled flag or list is changed, and when reconfigure or login with Newsman is done.</source>
+        <target state="final">Wird f&#xFC;r die Newsman-API-Authentifizierung verwendet. Er wird automatisch ausgetauscht, wenn der API-Schl&#xFC;ssel, die Benutzer-ID, das Aktivierungsflag oder die Liste ge&#xE4;ndert wird, und bei der Neukonfiguration oder Anmeldung mit Newsman.</target>
+      </trans-unit>
+      <trans-unit id="9ba66a9f92056682b7d86a38b4bc18c0" approved="yes">
+        <source>Not set</source>
+        <target state="final">Nicht gesetzt</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

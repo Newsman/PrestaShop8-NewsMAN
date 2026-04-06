@@ -1,0 +1,147 @@
+{#**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+ *#}
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+
+{% block content %}
+<style>
+    .nzm-log-line-error { color: #dc3545; }
+    .nzm-log-line-warning { color: #fd7e14; }
+    .nzm-log-line-notice { color: #6f42c1; }
+    .nzm-log-line-info { color: #0d6efd; }
+    .nzm-log-line-debug { color: #6c757d; }
+    .nzm-log-viewer {
+        max-height: 600px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 12px;
+        font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <img src="{{ asset('../modules/newsmanv8/views/img/logo.png') }}" alt="Newsman" width="167" height="27">
+        </div>
+        <span class="badge badge-success bg-success">v{{ moduleVersion }}</span>
+    </div>
+
+    <div class="card-body">
+
+        {% if logFiles is empty %}
+        <div class="alert alert-info">
+            {{ 'No log files found. Logs will appear here once logging is enabled and events are recorded.'|trans({}, 'Modules.Newsmanv8.Admin') }}
+        </div>
+        {% else %}
+
+        <div class="form-inline d-flex flex-wrap mb-3">
+            <div class="form-group mr-3 me-3">
+                <label for="nzm-log-file" class="mr-2 me-2">{{ 'Log file'|trans({}, 'Modules.Newsmanv8.Admin') }}:</label>
+                <select id="nzm-log-file" class="form-control form-control-sm">
+                    {% for file in logFiles %}
+                    <option value="{{ file }}" {{ file == selectedFile ? 'selected' : '' }}>
+                        {{ file | replace({'newsman_': '', '.log': ''}) }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group mr-3 me-3">
+                <label for="nzm-log-lines" class="mr-2 me-2">{{ 'Lines'|trans({}, 'Modules.Newsmanv8.Admin') }}:</label>
+                <input type="number" id="nzm-log-lines" class="form-control form-control-sm" style="width: 80px"
+                       value="{{ linesParam }}" min="1" max="2000">
+            </div>
+            <button type="button" id="nzm-log-refresh" class="btn btn-sm btn-primary">{{ 'Refresh'|trans({}, 'Modules.Newsmanv8.Admin') }}</button>
+            <form id="nzm-log-delete-form" method="post" action="{{ path('newsmanv8_log_delete') }}" class="d-inline ml-2 ms-2">
+                <input type="hidden" name="file" id="nzm-delete-file" value="{{ selectedFile }}">
+                <button type="button" id="nzm-log-delete" class="btn btn-sm btn-danger">{{ 'Delete'|trans({}, 'Modules.Newsmanv8.Admin') }}</button>
+            </form>
+        </div>
+
+        {% if selectedFile %}
+        <div class="mb-2 text-muted small">
+            {% if totalLines >= 0 %}
+            {{ 'Showing %displayed% of %total% lines'|trans({'%displayed%': displayedLines, '%total%': totalLines}, 'Modules.Newsmanv8.Admin') }}
+            {% else %}
+            {{ 'Showing last %displayed% lines'|trans({'%displayed%': displayedLines}, 'Modules.Newsmanv8.Admin') }}
+            {% endif %}
+            &middot;
+            {{ 'File size: %size%'|trans({'%size%': (fileSize / 1024)|number_format(1) ~ ' KB'}, 'Modules.Newsmanv8.Admin') }}
+        </div>
+
+        <div class="nzm-log-viewer">
+            {% if logContent is empty %}
+            <span class="text-muted">{{ 'Log file is empty.'|trans({}, 'Modules.Newsmanv8.Admin') }}</span>
+            {% else %}
+                {% for line in logContent %}
+                    {%- if '] ERROR:' in line or '] EMERGENCY:' in line or '] ALERT:' in line or '] CRITICAL:' in line -%}
+                    <div class="nzm-log-line-error">{{ line }}</div>
+                    {%- elseif '] WARNING:' in line -%}
+                    <div class="nzm-log-line-warning">{{ line }}</div>
+                    {%- elseif '] NOTICE:' in line -%}
+                    <div class="nzm-log-line-notice">{{ line }}</div>
+                    {%- elseif '] INFO:' in line -%}
+                    <div class="nzm-log-line-info">{{ line }}</div>
+                    {%- else -%}
+                    <div class="nzm-log-line-debug">{{ line }}</div>
+                    {%- endif -%}
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var baseUrl = '{{ path('newsmanv8_log_viewer')|e('js') }}';
+    var refreshBtn = document.getElementById('nzm-log-refresh');
+    var fileSelect = document.getElementById('nzm-log-file');
+    var linesInput = document.getElementById('nzm-log-lines');
+
+    function navigate() {
+        var sep = baseUrl.indexOf('?') === -1 ? '?' : '&';
+        window.location.href = baseUrl + sep + 'file=' + encodeURIComponent(fileSelect.value) + '&lines=' + encodeURIComponent(linesInput.value);
+    }
+
+    if (refreshBtn) refreshBtn.addEventListener('click', navigate);
+    if (fileSelect) fileSelect.addEventListener('change', function () {
+        navigate();
+        var deleteFileInput = document.getElementById('nzm-delete-file');
+        if (deleteFileInput) deleteFileInput.value = fileSelect.value;
+    });
+
+    var deleteBtn = document.getElementById('nzm-log-delete');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function () {
+            var file = document.getElementById('nzm-delete-file').value;
+            if (file && confirm('Delete log file "' + file + '"?')) {
+                document.getElementById('nzm-log-delete-form').submit();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

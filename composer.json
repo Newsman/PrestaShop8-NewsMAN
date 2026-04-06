@@ -1,7 +1,38 @@
 {
+    "name": "newsman/prestashop8",
+    "description": "Newsman email marketing and SMS integration for PrestaShop",
+    "license": "AFL-3.0",
+    "type": "prestashop-module",
+    "authors": [
+        {
+            "name": "PrestaShop SA",
+            "email": "contact@prestashop.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "greenlion/php-sql-parser": "^4.7"
+    },
+    "config": {
+        "prepend-autoloader": false,
+        "optimize-autoloader": true,
+        "classmap-authoritative": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "PrestaShop\\Module\\Newsmanv8\\": "src/"
+        },
+        "classmap": [
+            "newsmanv8.php"
+        ],
+        "exclude-from-classmap": []
+    },
+    "scripts": {},
     "require-dev": {
-        "prestashop/autoindex": "^2.1",
-        "prestashop/php-dev-tools": "^4.3",
-        "friendsofphp/php-cs-fixer": "^3.39"
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "phpstan/phpstan": "^2.1",
+        "prestashop/php-dev-tools": "^4.0"
     }
 }

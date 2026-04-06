@@ -1,0 +1,173 @@
+{#**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+ *#}
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+{% form_theme configurationForm '@PrestaShop/Admin/TwigTemplateForm/prestashop_ui_kit.html.twig' %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+            <img src="{{ asset('../modules/newsmanv8/views/img/logo.png') }}" alt="Newsman" width="167" height="27">
+        </div>
+        <span class="badge badge-success bg-success">v{{ moduleVersion }}</span>
+    </div>
+
+    <div class="card-body">
+        {% if conflictingModules is defined and conflictingModules is not empty %}
+        <div class="alert alert-danger">
+            <strong>{{ 'Warning'|trans({}, 'Admin.Notifications.Warning') }}:</strong>
+            {{ 'The following legacy Newsman modules were detected and must be removed to avoid conflicts:'|trans({}, 'Modules.Newsmanv8.Admin') }}
+            <strong>{{ conflictingModules|join(', ') }}</strong>.
+            {{ 'Please uninstall and delete them from the modules directory. The current module to use is'|trans({}, 'Modules.Newsmanv8.Admin') }} <strong>{{ moduleName }}</strong>.
+        </div>
+        {% endif %}
+
+        {{ form_start(configurationForm, {'attr': {'class': 'form'}}) }}
+
+        <h4 class="mt-4">{{ 'Account'|trans({}, 'Modules.Newsmanv8.Admin') }}</h4>
+        <hr>
+
+        <div class="form-wrapper">
+            {{ form_row(configurationForm.active) }}
+            {{ form_row(configurationForm.user_id) }}
+            {{ form_row(configurationForm.api_key) }}
+        </div>
+
+        {% if isConnected %}
+        <div class="form-group row mb-3">
+            <label class="form-control-label"></label>
+            <div class="col-sm" style="color: #40826D;"><strong>&#9679; {{ 'Connected to Newsman.'|trans({}, 'Modules.Newsmanv8.Admin') }}</strong></div>
+        </div>
+        {% else %}
+        <div class="form-group row mb-3">
+            <label class="form-control-label"></label>
+            <div class="col-sm" style="color: #D2042D;"><strong>&#9679; {{ 'Could not connect to Newsman. Please check your credentials or try again later (temporary API error).'|trans({}, 'Modules.Newsmanv8.Admin') }}</strong></div>
+        </div>
+        {% endif %}
+
+        {% if crossGroupInfo is defined and crossGroupInfo is not empty %}
+        <div class="alert alert-warning mt-3">
+            <strong>{{ 'Multi-Shop Notice'|trans({}, 'Modules.Newsmanv8.Admin') }}:</strong>
+            {{ 'The following shops from different Shop Groups are linked to the same Newsman list. This configuration adds complexity that may not be fully resolved in the default version of the Newsman extension.'|trans({}, 'Modules.Newsmanv8.Admin') }}
+            <ul class="mb-0 mt-2">
+            {% for group in crossGroupInfo %}
+                <li><strong>{{ group.group_name }}</strong>: {{ group.shops|join(', ') }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <h4 class="mt-4">{{ 'General'|trans({}, 'Modules.Newsmanv8.Admin') }}</h4>
+        <hr>
+
+        <div class="form-wrapper">
+            {{ form_row(configurationForm.list_id) }}
+            {% if isMultistore is defined and isMultistore %}
+            <div class="form-group row mb-3">
+                <label class="form-control-label"></label>
+                <div class="col-sm"><small class="text-muted">{{ 'We recommend assigning a different list to each store.'|trans({}, 'Modules.Newsmanv8.Admin') }}</small></div>
+            </div>
+            {% endif %}
+            {{ form_row(configurationForm.segment_id) }}
+            {{ form_row(configurationForm.double_optin) }}
+            {{ form_row(configurationForm.send_user_ip) }}
+            {{ form_row(configurationForm.server_ip) }}
+        </div>
+
+        <h4 class="mt-4">{{ 'Remarketing'|trans({}, 'Modules.Newsmanv8.Admin') }}</h4>
+        <hr>
+
+        <div class="form-wrapper">
+            {{ form_row(configurationForm.remarketing_status) }}
+            {{ form_row(configurationForm.remarketing_id) }}
+            <div class="form-group row">
+                <div class="form-check form-check-radio form-checkbox" style="visibility: hidden;">
+                    <div class="md-checkbox md-checkbox-inline"><label><input type="checkbox" disabled class="form-check-input"><i class="md-checkbox-control"></i></label></div>
+                </div>
+                <label class="form-control-label">{{ 'Remarketing ID Status'|trans({}, 'Modules.Newsmanv8.Admin') }}</label>
+                <div style="padding-top: 7px;" class="col-sm input-container">
+                    {% if isRemarketingConnected %}
+                    <strong style="color: #40826D;">{{ 'Remarketing ID is valid'|trans({}, 'Modules.Newsmanv8.Admin') }}</strong>
+                    {% else %}
+                    <strong style="color: #D2042D;">{{ 'Remarketing ID is invalid'|trans({}, 'Modules.Newsmanv8.Admin') }}</strong>
+                    {% endif %}
+                </div>
+            </div>
+            {{ form_row(configurationForm.remarketing_anonymize_ip) }}
+            {{ form_row(configurationForm.remarketing_send_telephone) }}
+        </div>
+
+        <h4 class="mt-4">{{ 'Developer'|trans({}, 'Modules.Newsmanv8.Admin') }}</h4>
+        <hr>
+
+        <div class="form-wrapper">
+            {{ form_row(configurationForm.log_severity) }}
+            {{ form_row(configurationForm.log_clean_days) }}
+            {{ form_row(configurationForm.api_timeout) }}
+            {{ form_row(configurationForm.dev_active_user_ip) }}
+            {{ form_row(configurationForm.dev_user_ip) }}
+        </div>
+
+        <h4 class="mt-4">{{ 'Export Authorization'|trans({}, 'Modules.Newsmanv8.Admin') }}</h4>
+        <hr>
+
+        <div class="form-wrapper">
+            <div class="form-group row mb-3">
+                <label class="form-control-label">{{ 'Authenticate Token'|trans({}, 'Modules.Newsmanv8.Admin') }}</label>
+                <div class="col-sm" style="padding-top: 7px;">
+                    {% if maskedAuthenticateToken is not empty %}
+                    <span style="font-family:monospace;font-size:14px;letter-spacing:0.5px;">{{ maskedAuthenticateToken }}</span>
+                    {% else %}
+                    <span style="color:#999;">{{ 'Not set'|trans({}, 'Modules.Newsmanv8.Admin') }}</span>
+                    {% endif %}
+                    <br><small class="text-muted">{{ 'Used for Newsman API authentication. It is exchanged automatically when the API key, User ID, enabled flag or list is changed, and when reconfigure or login with Newsman is done.'|trans({}, 'Modules.Newsmanv8.Admin') }}</small>
+                </div>
+            </div>
+            {{ form_row(configurationForm.export_auth_header_name) }}
+            {{ form_row(configurationForm.export_auth_header_key) }}
+        </div>
+
+        {{ form_rest(configurationForm) }}
+
+        <hr>
+        <div class="form-group row">
+            <div class="col-md-5 offset-md-3">
+                <button type="submit" class="btn btn-primary">
+                    {{ 'Save'|trans({}, 'Admin.Actions') }}
+                </button>
+                <a href="{{ path('newsmanv8_oauth_step1') }}" class="btn btn-outline-warning ml-2 ms-2">
+                    {{ 'Reconfigure'|trans({}, 'Modules.Newsmanv8.Admin') }}
+                </a>
+            </div>
+        </div>
+
+        {{ form_end(configurationForm) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(function () {
+            window.prestashop.component.initComponents(['MultistoreConfigField']);
+        });
+    </script>
+{% endblock %}

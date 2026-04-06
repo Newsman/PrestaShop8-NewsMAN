@@ -1,0 +1,58 @@
+{#**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+ *#}
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-header-title">{{ 'Select Email List'|trans({}, 'Modules.Newsmanv8.Admin') }}</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{{ path('newsmanv8_oauth_save_list') }}">
+            <input type="hidden" name="user_id" value="{{ userId }}">
+            <input type="hidden" name="api_key" value="{{ apiKey }}">
+
+            <div class="form-group row">
+                <label for="list_id" class="form-control-label col-md-3">
+                    {{ 'Email List'|trans({}, 'Modules.Newsmanv8.Admin') }}
+                </label>
+                <div class="col-md-5">
+                    <select name="list_id" id="list_id" class="form-control" required>
+                        <option value="">-- {{ 'Select a list'|trans({}, 'Modules.Newsmanv8.Admin') }} --</option>
+                        {% for list in lists %}
+                        <option value="{{ list.list_id }}">{{ list.list_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-5 offset-md-3">
+                    <button type="submit" class="btn btn-primary">
+                        {{ 'Save'|trans({}, 'Admin.Actions') }}
+                    </button>
+                    <a href="{{ path('newsmanv8_oauth_step1') }}" class="btn btn-outline-secondary ml-2 ms-2">
+                        {{ 'Back'|trans({}, 'Admin.Actions') }}
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+services:
+  _defaults:
+    public: true
+    autowire: true
+    autoconfigure: true
+
+  # Shop Context adapter (registered here because prestashop.adapter.shop.context
+  # is only available in the Symfony admin container, not in the legacy front container)
+  newsmanv8.shop.context:
+    class: PrestaShop\PrestaShop\Adapter\Shop\Context
+    public: true
+
+  # Config (wraps PS Configuration adapter + Shop Context)
+  PrestaShop\Module\Newsmanv8\Config:
+    arguments:
+      $configuration: '@prestashop.adapter.legacy.configuration'
+      $shopContext: '@newsmanv8.shop.context'
+
+  # Logger
+  PrestaShop\Module\Newsmanv8\Logger: ~
+
+  # Validator
+  PrestaShop\Module\Newsmanv8\Validator\Email: ~
+
+  # API Client
+  PrestaShop\Module\Newsmanv8\Api\Client: ~
+
+  # Actions
+  PrestaShop\Module\Newsmanv8\Action\Subscribe\Email: ~
+  PrestaShop\Module\Newsmanv8\Action\Reverse\NewsletterManager:
+    arguments:
+      $config: '@PrestaShop\Module\Newsmanv8\Config'
+      $configuration: '@prestashop.adapter.legacy.configuration'
+      $shopContext: '@newsmanv8.shop.context'
+  PrestaShop\Module\Newsmanv8\Action\Order\Save:
+    arguments:
+      $configuration: '@prestashop.adapter.legacy.configuration'
+  PrestaShop\Module\Newsmanv8\Action\Order\Status:
+    arguments:
+      $configuration: '@prestashop.adapter.legacy.configuration'
+
+  # Services (extend AbstractService)
+  PrestaShop\Module\Newsmanv8\Service\SubscribeEmail: ~
+  PrestaShop\Module\Newsmanv8\Service\UnsubscribeEmail: ~
+  PrestaShop\Module\Newsmanv8\Service\InitSubscribeEmail: ~
+  PrestaShop\Module\Newsmanv8\Service\InitUnsubscribeEmail: ~
+  PrestaShop\Module\Newsmanv8\Service\GetByEmail: ~
+  PrestaShop\Module\Newsmanv8\Service\ExportCsvSubscribers: ~
+  PrestaShop\Module\Newsmanv8\Service\Segment\AddSubscriber: ~
+  PrestaShop\Module\Newsmanv8\Service\Sms\Subscribe: ~
+  PrestaShop\Module\Newsmanv8\Service\Sms\Unsubscribe: ~
+  PrestaShop\Module\Newsmanv8\Service\Sms\SendOne: ~
+  PrestaShop\Module\Newsmanv8\Service\Configuration\GetListAll: ~
+  PrestaShop\Module\Newsmanv8\Service\Configuration\GetSegmentAll: ~
+  PrestaShop\Module\Newsmanv8\Service\Configuration\SetFeedOnList: ~
+  PrestaShop\Module\Newsmanv8\Service\Configuration\UpdateFeed: ~
+  PrestaShop\Module\Newsmanv8\Service\Configuration\Integration\SaveListIntegrationSetup: ~
+  PrestaShop\Module\Newsmanv8\Service\Configuration\Remarketing\GetSettings: ~
+  PrestaShop\Module\Newsmanv8\Service\Configuration\Sms\GetListAll: ~
+  PrestaShop\Module\Newsmanv8\Service\Remarketing\SaveOrder: ~
+  PrestaShop\Module\Newsmanv8\Service\Remarketing\SaveOrders: ~
+  PrestaShop\Module\Newsmanv8\Service\Remarketing\SetPurchaseStatus: ~
+
+  # Export infrastructure
+  PrestaShop\Module\Newsmanv8\Export\Renderer: ~
+  PrestaShop\Module\Newsmanv8\Export\Request: ~
+  PrestaShop\Module\Newsmanv8\Export\Order\StatusMapper:
+    arguments:
+      $configuration: '@prestashop.adapter.legacy.configuration'
+  PrestaShop\Module\Newsmanv8\Export\V1\PayloadParser: ~
+  PrestaShop\Module\Newsmanv8\Export\Router: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Authenticator: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Processor: ~
+
+  # Retrievers (all registered as services, resolved by Pool from container)
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Coupons: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\CronOrders: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\CronSubscribers: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\CustomSql: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Customers: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\IntegrationName: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\IntegrationVersion: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Orders: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformLanguage: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformLanguageVersion: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformName: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformVersion: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Products: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\ProductsFeed: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\RefreshRemarketing:
+    arguments:
+      $configuration: '@prestashop.adapter.legacy.configuration'
+  PrestaShop\Module\Newsmanv8\Export\Retriever\SendOrders: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\SendSubscribers: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\ServerCloudflare: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\ServerIp: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\SqlName: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\SqlVersion: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\SubscriberSubscribe: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\SubscriberUnsubscribe: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Subscribers: ~
+  PrestaShop\Module\Newsmanv8\Export\Retriever\SubscribersBase: ~
+
+  # Pool (retriever registry + service locator)
+  PrestaShop\Module\Newsmanv8\Export\Retriever\Pool:
+    arguments:
+      $container: '@service_container'
+      $retrieverList:
+        coupons:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\Coupons'
+        cron-orders:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\CronOrders'
+        cron-subscribers:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\CronSubscribers'
+        custom-sql:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\CustomSql'
+        customers:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\Customers'
+          has_filters: true
+        orders:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\Orders'
+          has_filters: true
+        products-feed:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\ProductsFeed'
+          has_filters: true
+        products:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\Products'
+        send-orders:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\SendOrders'
+        send-subscribers:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\SendSubscribers'
+        subscriber-subscribe:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\SubscriberSubscribe'
+        subscriber-unsubscribe:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\SubscriberUnsubscribe'
+        subscribers:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\Subscribers'
+          has_filters: true
+        platform-name:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformName'
+        platform-version:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformVersion'
+        platform-language:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformLanguage'
+        platform-language-version:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\PlatformLanguageVersion'
+        integration-name:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\IntegrationName'
+        integration-version:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\IntegrationVersion'
+        server-ip:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\ServerIp'
+        server-cloudflare:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\ServerCloudflare'
+        sql-name:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\SqlName'
+        sql-version:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\SqlVersion'
+        refresh-remarketing:
+          class: 'PrestaShop\Module\Newsmanv8\Export\Retriever\RefreshRemarketing'
+
+  # Remarketing
+  PrestaShop\Module\Newsmanv8\Remarketing\TrackingScript: ~
+  PrestaShop\Module\Newsmanv8\Remarketing\Purchase:
+    arguments:
+      $configuration: '@prestashop.adapter.legacy.configuration'
+  PrestaShop\Module\Newsmanv8\Remarketing\CartTracking: ~
+  PrestaShop\Module\Newsmanv8\Remarketing\CustomerIdentify: ~
+  PrestaShop\Module\Newsmanv8\Remarketing\ProductView: ~
+  PrestaShop\Module\Newsmanv8\Remarketing\PageView: ~
+  PrestaShop\Module\Newsmanv8\Remarketing\CategoryView: ~
+  PrestaShop\Module\Newsmanv8\Remarketing\Renderer: ~
+
+  # Webhooks
+  PrestaShop\Module\Newsmanv8\Webhooks: ~
+
+  # Utilities
+  PrestaShop\Module\Newsmanv8\Util\ServerIpResolver: ~
+  PrestaShop\Module\Newsmanv8\Util\LogFileReader: ~
+
+  # User IP resolution
+  PrestaShop\Module\Newsmanv8\User\RemoteAddress:
+    arguments:
+      $alternativeHeaders:
+        - 'HTTP_X_REAL_IP'
+        - 'HTTP_CLIENT_IP'
+        - 'HTTP_X_FORWARDED_FOR'
+        - 'HTTP_X_FORWARDED'
+        - 'HTTP_FORWARDED_FOR'
+        - 'HTTP_FORWARDED'
+
+  PrestaShop\Module\Newsmanv8\User\HostIpAddress:
+    arguments:
+      $configuration: '@prestashop.adapter.legacy.configuration'
+
+  PrestaShop\Module\Newsmanv8\User\IpAddress: ~

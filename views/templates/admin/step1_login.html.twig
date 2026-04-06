@@ -1,0 +1,57 @@
+{#**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+ *#}
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-header-title">{{ 'Connect to Newsman'|trans({}, 'Modules.Newsmanv8.Admin') }}</h3>
+    </div>
+    <div class="card-body">
+        {% if conflictingModules is defined and conflictingModules is not empty %}
+        <div class="alert alert-danger">
+            <strong>{{ 'Warning'|trans({}, 'Admin.Notifications.Warning') }}:</strong>
+            {{ 'The following legacy Newsman modules were detected and must be removed to avoid conflicts:'|trans({}, 'Modules.Newsmanv8.Admin') }}
+            <strong>{{ conflictingModules|join(', ') }}</strong>.
+            {{ 'Please uninstall and delete them from the modules directory. The current module to use is'|trans({}, 'Modules.Newsmanv8.Admin') }} <strong>{{ moduleName }}</strong>.
+        </div>
+        {% endif %}
+
+        <h4>{{ 'Features'|trans({}, 'Modules.Newsmanv8.Admin') }}</h4>
+        <ul class="list-unstyled">
+            <li>&#10003; {{ 'Sync newsletter subscribers to Newsman'|trans({}, 'Modules.Newsmanv8.Admin') }}</li>
+            <li>&#10003; {{ 'Remarketing and tracking scripts'|trans({}, 'Modules.Newsmanv8.Admin') }}</li>
+            <li>&#10003; {{ 'Subscription forms and popups'|trans({}, 'Modules.Newsmanv8.Admin') }}</li>
+            <li>&#10003; {{ 'Email and SMS automation'|trans({}, 'Modules.Newsmanv8.Admin') }}</li>
+            <li>&#10003; {{ 'Product feed export'|trans({}, 'Modules.Newsmanv8.Admin') }}</li>
+            <li>&#10003; {{ 'Order tracking'|trans({}, 'Modules.Newsmanv8.Admin') }}</li>
+        </ul>
+        <div class="mt-4">
+            <a href="{{ oauthUrl }}" class="btn btn-primary btn-lg">
+                {{ 'Connect with Newsman'|trans({}, 'Modules.Newsmanv8.Admin') }}
+            </a>
+            {% if hasCredentials %}
+            <a href="{{ path('newsmanv8_configuration') }}" class="btn btn-outline-secondary ml-2 ms-2">
+                {{ 'Cancel'|trans({}, 'Admin.Actions') }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+newsmanv8_configuration:
+  path: newsmanv8/configuration
+  methods: [GET, POST, PATCH]
+  defaults:
+    _controller: PrestaShop\Module\Newsmanv8\Controller\Admin\ConfigurationController::indexAction
+    _legacy_controller: 'Newsmanv8ConfigurationAdminController'
+    _legacy_link: 'Newsmanv8ConfigurationAdminController'
+
+newsmanv8_oauth_step1:
+  path: newsmanv8/oauth/step1
+  methods: [GET]
+  defaults:
+    _controller: PrestaShop\Module\Newsmanv8\Controller\Admin\OauthLoginController::indexAction
+    _legacy_controller: 'Newsmanv8ConfigurationAdminController'
+
+newsmanv8_oauth_callback:
+  path: newsmanv8/oauth/callback
+  methods: [GET]
+  defaults:
+    _controller: PrestaShop\Module\Newsmanv8\Controller\Admin\OauthCallbackController::indexAction
+    _legacy_controller: 'Newsmanv8ConfigurationAdminController'
+
+newsmanv8_log_viewer:
+  path: newsmanv8/logs
+  methods: [GET]
+  defaults:
+    _controller: PrestaShop\Module\Newsmanv8\Controller\Admin\LogViewerController::indexAction
+    _legacy_controller: 'Newsmanv8LogViewerAdminController'
+    _legacy_link: 'Newsmanv8LogViewerAdminController'
+
+newsmanv8_log_delete:
+  path: newsmanv8/logs/delete
+  methods: [POST]
+  defaults:
+    _controller: PrestaShop\Module\Newsmanv8\Controller\Admin\LogViewerController::deleteAction
+    _legacy_controller: 'Newsmanv8LogViewerAdminController'
+
+newsmanv8_oauth_save_list:
+  path: newsmanv8/oauth/save-list
+  methods: [POST]
+  defaults:
+    _controller: PrestaShop\Module\Newsmanv8\Controller\Admin\OauthSaveListController::indexAction
+    _legacy_controller: 'Newsmanv8ConfigurationAdminController'

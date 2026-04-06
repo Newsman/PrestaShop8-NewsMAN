@@ -1,0 +1,61 @@
+imports:
+  - { resource: ../common.yml }
+
+services:
+  _defaults:
+    public: true
+    autowire: true
+    autoconfigure: true
+
+  # Controllers — inject full service container so $this->get() can resolve module services
+  PrestaShop\Module\Newsmanv8\Controller\Admin\ConfigurationController:
+    calls: [['setContainer', ['@service_container']]]
+  PrestaShop\Module\Newsmanv8\Controller\Admin\OauthLoginController:
+    calls: [['setContainer', ['@service_container']]]
+  PrestaShop\Module\Newsmanv8\Controller\Admin\OauthCallbackController:
+    calls: [['setContainer', ['@service_container']]]
+  PrestaShop\Module\Newsmanv8\Controller\Admin\OauthSaveListController:
+    calls: [['setContainer', ['@service_container']]]
+  PrestaShop\Module\Newsmanv8\Controller\Admin\LogViewerController:
+    calls: [['setContainer', ['@service_container']]]
+
+  # Event subscribers
+  PrestaShop\Module\Newsmanv8\EventSubscriber\AdminEmailsubscriptionSubscriber:
+    tags:
+      - { name: kernel.event_subscriber }
+
+  # Form type (inherits translator + locales from parent)
+  PrestaShop\Module\Newsmanv8\Form\ConfigurationType:
+    parent: 'form.type.translatable.aware'
+    autowire: true
+    autoconfigure: false
+    public: true
+    tags: ['form.type']
+
+  # Data configuration (extends AbstractMultistoreConfiguration)
+  PrestaShop\Module\Newsmanv8\Form\ConfigurationDataConfiguration:
+    arguments:
+      - '@prestashop.adapter.legacy.configuration'
+      - '@prestashop.adapter.shop.context'
+      - '@prestashop.adapter.multistore_feature'
+      - '@PrestaShop\Module\Newsmanv8\Logger'
+      - '@PrestaShop\Module\Newsmanv8\Service\Configuration\Integration\SaveListIntegrationSetup'
+      - '@PrestaShop\Module\Newsmanv8\Service\Configuration\Remarketing\GetSettings'
+      - '@PrestaShop\Module\Newsmanv8\Util\ServerIpResolver'
+      - '@PrestaShop\Module\Newsmanv8\Config'
+
+  # Form data provider (wraps DataConfiguration)
+  newsmanv8.form.configuration_data_provider:
+    class: PrestaShop\Module\Newsmanv8\Form\ConfigurationFormDataProvider
+    arguments:
+      - '@PrestaShop\Module\Newsmanv8\Form\ConfigurationDataConfiguration'
+
+  # Form handler (PrestaShop core)
+  newsmanv8.form.configuration_handler:
+    class: 'PrestaShop\PrestaShop\Core\Form\Handler'
+    arguments:
+      - '@form.factory'
+      - '@prestashop.core.hook.dispatcher'
+      - '@newsmanv8.form.configuration_data_provider'
+      - 'PrestaShop\Module\Newsmanv8\Form\ConfigurationType'
+      - 'Newsmanv8Configuration'
