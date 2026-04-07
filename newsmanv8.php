@@ -189,8 +189,10 @@ class Newsmanv8 extends Module
      */
     public function getContent()
     {
+        /** @var \Symfony\Component\Routing\RouterInterface $router */
+        $router = $this->get('router');
         Tools::redirectAdmin(
-            $this->get('router')->generate('newsmanv8_configuration')
+            $router->generate('newsmanv8_configuration')
         );
 
         return '';
@@ -276,10 +278,12 @@ class Newsmanv8 extends Module
     public function hookDisplayAfterBodyOpeningTag(array $params): string
     {
         try {
+            /** @var RemarketingRenderer $renderer */
             $renderer = $this->get(RemarketingRenderer::class);
 
             return $renderer->renderTrackingScript($this->context);
         } catch (Exception $e) {
+            /** @var Logger $logger */
             $logger = $this->get(Logger::class);
             $logger->logException($e);
 
@@ -290,10 +294,12 @@ class Newsmanv8 extends Module
     public function hookDisplayBeforeBodyClosingTag(array $params): string
     {
         try {
+            /** @var RemarketingRenderer $renderer */
             $renderer = $this->get(RemarketingRenderer::class);
 
             return $renderer->renderBodyClosingTag($this->context);
         } catch (Exception $e) {
+            /** @var Logger $logger */
             $logger = $this->get(Logger::class);
             $logger->logException($e);
 
@@ -321,10 +327,12 @@ class Newsmanv8 extends Module
             $order = $params['order'];
             $shopId = (int) $order->id_shop ?: null;
 
+            /** @var RemarketingRenderer $renderer */
             $renderer = $this->get(RemarketingRenderer::class);
 
             return $renderer->renderPurchaseTracking($order, Config::shopConstraint($shopId));
         } catch (Exception $e) {
+            /** @var Logger $logger */
             $logger = $this->get(Logger::class);
             $logger->logException($e);
 
@@ -347,7 +355,9 @@ class Newsmanv8 extends Module
 
         if ('AdminDashboard' === $controller) {
             try {
-                $this->get(PrestaShop\Module\Newsmanv8\Util\LogFileReader::class)->cleanOldLogs();
+                /** @var PrestaShop\Module\Newsmanv8\Util\LogFileReader $logReader */
+                $logReader = $this->get(PrestaShop\Module\Newsmanv8\Util\LogFileReader::class);
+                $logReader->cleanOldLogs();
             } catch (Exception $e) {
                 // Silently ignore — cleanup is best-effort.
             }
@@ -383,6 +393,7 @@ class Newsmanv8 extends Module
             return;
         }
 
+        /** @var SubscribeEmailAction $action */
         $action = $this->get(SubscribeEmailAction::class);
         $action->subscribe(
             $customer->email,
@@ -428,6 +439,7 @@ class Newsmanv8 extends Module
             return;
         }
 
+        /** @var SubscribeEmailAction $action */
         $action = $this->get(SubscribeEmailAction::class);
 
         $oldNewsletter = (bool) $existingCustomer->newsletter;
@@ -487,6 +499,7 @@ class Newsmanv8 extends Module
             return;
         }
 
+        /** @var SubscribeEmailAction $action */
         $action = $this->get(SubscribeEmailAction::class);
         $action->unsubscribe($customer->email, $shopConstraint);
     }
@@ -519,6 +532,7 @@ class Newsmanv8 extends Module
         $email = (string) $params['email'];
         $actionType = isset($params['action']) ? (int) $params['action'] : -1;
 
+        /** @var SubscribeEmailAction $action */
         $action = $this->get(SubscribeEmailAction::class);
 
         if (0 === $actionType) {
@@ -557,6 +571,7 @@ class Newsmanv8 extends Module
             return;
         }
 
+        /** @var OrderSaveAction $saveAction */
         $saveAction = $this->get(OrderSaveAction::class);
         $saveAction->execute((int) $order->id, true, $shopConstraint);
 
@@ -572,6 +587,7 @@ class Newsmanv8 extends Module
                     : time();
                 $oneHourAgo = time() - 3600;
                 if ($newsletterDate !== false && $newsletterDate >= $oneHourAgo) {
+                    /** @var SubscribeEmailAction $subscribeAction */
                     $subscribeAction = $this->get(SubscribeEmailAction::class);
                     $subscribeAction->subscribe(
                         $customer->email,
@@ -622,6 +638,7 @@ class Newsmanv8 extends Module
         // $statusAction = $this->get(OrderStatusAction::class);
         // $statusAction->execute($orderId, (int) $newOrderStatus->id, $shopConstraint);
 
+        /** @var OrderSaveAction $saveAction */
         $saveAction = $this->get(OrderSaveAction::class);
         $saveAction->execute($orderId, false, $shopConstraint);
     }
