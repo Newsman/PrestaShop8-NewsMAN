@@ -639,12 +639,7 @@ class Newsmanv8 extends Module
     {
     }
 
-    /*
-     * PS8 requires a method stub for every registered hook.
-     * These custom hooks are dispatched by the Newsman library classes
-     * and consumed by 3rd-party modules — the main module class only
-     * needs to register them so PrestaShop creates the hook rows.
-     */
+    // Custom hooks for 3rd party developers — Action layer.
 
     public function hookActionNewsmanBeforeSubscribe(array $params): void
     {
@@ -685,6 +680,8 @@ class Newsmanv8 extends Module
     public function hookActionNewsmanRemarketingRender(array $params): void
     {
     }
+
+    // Service layer hooks (before API calls).
 
     public function hookActionNewsmanServiceSubscribeEmailBefore(array $params): void
     {
@@ -742,6 +739,8 @@ class Newsmanv8 extends Module
     {
     }
 
+    // API client hooks.
+
     public function hookActionNewsmanApiClientGetParamsBefore(array $params): void
     {
     }
@@ -758,6 +757,8 @@ class Newsmanv8 extends Module
     {
     }
 
+    // Remarketing script hooks.
+
     public function hookActionNewsmanRemarketingTrackingScriptAfter(array $params): void
     {
     }
@@ -765,6 +766,8 @@ class Newsmanv8 extends Module
     public function hookActionNewsmanRemarketingTrackingAttributesBefore(array $params): void
     {
     }
+
+    // Export retriever hooks.
 
     public function hookActionNewsmanExportRetrieverProcessListParamsBefore(array $params): void
     {

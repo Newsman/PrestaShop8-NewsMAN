@@ -222,7 +222,6 @@ class Config
 
     /**
      * Check if the Newsman module is enabled in PrestaShop's Module Manager for a given shop.
-     * Uses Module::isEnabled() for the current context shop, or a direct DB query for other shops.
      */
     public function isModuleEnabledForShop(?ShopConstraint $shopConstraint = null): bool
     {
