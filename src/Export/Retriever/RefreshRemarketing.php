@@ -87,18 +87,22 @@ class RefreshRemarketing extends AbstractRetriever
 
         $oldRemarketingJs = $this->config->getRemarketingScriptJs($shopConstraint);
         $newRemarketingJs = $settings['javascript'];
+        $strippedJs = Config::stripScriptTags($newRemarketingJs);
 
-        $this->configuration->set(Config::KEY_REMARKETING_SCRIPT_JS, Config::stripScriptTags($newRemarketingJs), $shopConstraint);
+        $this->configuration->set(Config::KEY_REMARKETING_SCRIPT_JS, $strippedJs, $shopConstraint);
 
         $siteId = $settings['site_id'] ?? '';
         $formId = $settings['form_id'] ?? '';
         $controlListHash = $settings['control_list_hash'] ?? '';
+        $remarketingId = '';
 
         if (!empty($siteId) && !empty($formId)) {
             $remarketingId = $siteId . '-' . $listId . '-' . $formId . '-' . $controlListHash;
             $this->configuration->set(Config::KEY_REMARKETING_ID, $remarketingId, $shopConstraint);
             $this->configuration->set(Config::KEY_REMARKETING_STATUS, '1', $shopConstraint);
         }
+
+        $this->propagateToLinkedShops($listId, $shopId, $strippedJs, $remarketingId);
 
         $this->logger->info('refresh.remarketing: updated remarketing settings');
 
@@ -107,5 +111,36 @@ class RefreshRemarketing extends AbstractRetriever
             'old_remarketing_js' => !empty($oldRemarketingJs) ? $oldRemarketingJs : '',
             'new_remarketing_js' => $newRemarketingJs,
         ];
+    }
+
+    /**
+     * Copy the fresh remarketing values to every other shop that shares the same list_id,
+     * so shops grouped under one Newsman list stay in sync.
+     */
+    protected function propagateToLinkedShops(
+        string $listId,
+        ?int $requestShopId,
+        string $remarketingScriptJs,
+        string $remarketingId,
+    ): void {
+        $linkedShopIds = $this->config->getShopIdsByListId($listId);
+        if (count($linkedShopIds) <= 1) {
+            return;
+        }
+
+        foreach ($linkedShopIds as $linkedShopId) {
+            $linkedShopId = (int) $linkedShopId;
+            if (null !== $requestShopId && $linkedShopId === $requestShopId) {
+                continue;
+            }
+            $sc = Config::shopConstraint($linkedShopId);
+            if (!empty($remarketingScriptJs)) {
+                $this->configuration->set(Config::KEY_REMARKETING_SCRIPT_JS, $remarketingScriptJs, $sc);
+            }
+            if (!empty($remarketingId)) {
+                $this->configuration->set(Config::KEY_REMARKETING_ID, $remarketingId, $sc);
+                $this->configuration->set(Config::KEY_REMARKETING_STATUS, '1', $sc);
+            }
+        }
     }
 }
