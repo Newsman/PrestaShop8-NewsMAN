@@ -14,8 +14,8 @@ namespace PrestaShop\Module\Newsmanv8\Action\Order;
 use PrestaShop\Module\Newsmanv8\Config;
 use PrestaShop\Module\Newsmanv8\Export\Order\StatusMapper;
 use PrestaShop\Module\Newsmanv8\Logger;
-use PrestaShop\Module\Newsmanv8\Service\Context\Remarketing\SaveOrder as SaveOrderContext;
-use PrestaShop\Module\Newsmanv8\Service\Remarketing\SaveOrder as SaveOrderService;
+use PrestaShop\Module\Newsmanv8\Service\Context\Remarketing\SaveOrders as SaveOrdersContext;
+use PrestaShop\Module\Newsmanv8\Service\Remarketing\SaveOrders as SaveOrdersService;
 use PrestaShop\PrestaShop\Adapter\Configuration;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 
@@ -28,20 +28,20 @@ class Save
     protected Config $config;
     protected Logger $logger;
     protected StatusMapper $statusMapper;
-    protected SaveOrderService $saveOrderService;
+    protected SaveOrdersService $saveOrdersService;
     protected Configuration $configuration;
 
     public function __construct(
         Config $config,
         Logger $logger,
         StatusMapper $statusMapper,
-        SaveOrderService $saveOrderService,
+        SaveOrdersService $saveOrdersService,
         Configuration $configuration,
     ) {
         $this->config = $config;
         $this->logger = $logger;
         $this->statusMapper = $statusMapper;
-        $this->saveOrderService = $saveOrderService;
+        $this->saveOrdersService = $saveOrdersService;
         $this->configuration = $configuration;
     }
 
@@ -137,12 +137,14 @@ class Save
                 }
             }
 
-            $context = new SaveOrderContext();
-            $context->setListId($this->config->getListId($shopConstraint))
-                ->setOrderDetails($details)
-                ->setOrderProducts($productsData);
+            $orderRow = $details;
+            $orderRow['products'] = $productsData;
 
-            $this->saveOrderService->execute($context);
+            $context = new SaveOrdersContext();
+            $context->setListId($this->config->getListId($shopConstraint))
+                ->setOrders([$orderRow]);
+
+            $this->saveOrdersService->execute($context);
 
             \Hook::exec('actionNewsmanAfterOrderSave', [
                 'order_id' => $orderId,

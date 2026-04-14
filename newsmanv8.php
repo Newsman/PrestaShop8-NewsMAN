@@ -118,7 +118,7 @@ class Newsmanv8 extends Module
     {
         $this->name = 'newsmanv8';
         $this->tab = 'advertising_marketing';
-        $this->version = '8.0.1';
+        $this->version = '8.0.2';
         $this->author = 'Newsman by Dazoot';
         $this->module_key = '00c167886eb6f3c7d318ea806a563b32';
         $this->need_instance = 0;
