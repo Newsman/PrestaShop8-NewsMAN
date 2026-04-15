@@ -1,8 +1,5 @@
 # PrestaShop 8.x NewsMAN Module
 
-> [!IMPORTANT]
-> Version 8.0.0 of this module is not yet released. Until release please use 1.0.1 version. It will be released soon.
-
 The [NewsMAN](https://www.newsmanapp.com) module for PrestaShop 8 facilitates seamless synchronization of your PrestaShop customers and subscribers with Newsman lists and segments. Simplify the connection between your shop and NewsMAN by installing this module and following the setup steps below. This process allows you to effortlessly sync customer and newsletter subscriber data, enable remarketing, and manage your email marketing campaigns.
 
 > [!NOTE]
