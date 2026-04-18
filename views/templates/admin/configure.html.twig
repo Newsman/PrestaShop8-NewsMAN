@@ -26,12 +26,14 @@
             <img src="{{ asset('../modules/newsmanv8/views/img/logo.png') }}" alt="Newsman" width="167" height="27">
             <span class="badge badge-success bg-success">v{{ moduleVersion }}</span>
         </div>
+        {% if not hasApiAccess %}
         <div class="mt-2">
             <a href="{{ path('newsmanv8_oauth_step1') }}" class="btn" style="background-color:#A50300;border-color:#A50300;color:#fff;">
                 {{ 'Configure with Newsman login'|trans({}, 'Modules.Newsmanv8.Admin') }}
             </a>
             <div class="mt-2"><small class="text-muted">{{ 'This step is required for the module to work properly. It grants Newsman.app API access to your store.'|trans({}, 'Modules.Newsmanv8.Admin') }}</small></div>
         </div>
+        {% endif %}
     </div>
 
     <div class="card-body">

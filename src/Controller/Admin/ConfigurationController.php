@@ -81,6 +81,7 @@ class ConfigurationController extends FrameworkBundleAdminController
 
         return $this->render('@Modules/newsmanv8/views/templates/admin/configure.html.twig', [
             'configurationForm' => $form->createView(),
+            'hasApiAccess' => $config->hasApiAccess(),
             'isConnected' => $config->isEnabledWithApiOnly() && !empty($form->get('list_id')->getConfig()->getOption('choices')),
             'isRemarketingConnected' => $this->isRemarketingConnected($config, $remarketingGetSettings, $logger),
             'moduleVersion' => Version::getModuleVersion(),
