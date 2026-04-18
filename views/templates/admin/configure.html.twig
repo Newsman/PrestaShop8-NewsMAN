@@ -21,14 +21,16 @@
 
 {% block content %}
 <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
             <img src="{{ asset('../modules/newsmanv8/views/img/logo.png') }}" alt="Newsman" width="167" height="27">
-            <a href="{{ path('newsmanv8_oauth_step1') }}" class="btn btn-primary ml-3 ms-3">
+            <span class="badge badge-success bg-success">v{{ moduleVersion }}</span>
+        </div>
+        <div class="mt-2">
+            <a href="{{ path('newsmanv8_oauth_step1') }}" class="btn" style="background-color:#A50300;border-color:#A50300;color:#fff;">
                 {{ 'Configure with Newsman login'|trans({}, 'Modules.Newsmanv8.Admin') }}
             </a>
         </div>
-        <span class="badge badge-success bg-success">v{{ moduleVersion }}</span>
     </div>
 
     <div class="card-body">
