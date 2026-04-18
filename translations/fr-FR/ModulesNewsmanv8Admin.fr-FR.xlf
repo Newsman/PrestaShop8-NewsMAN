@@ -266,6 +266,14 @@
         <source>Not set</source>
         <target state="final">Non d&#xE9;fini</target>
       </trans-unit>
+      <trans-unit id="41b4b012bee7554f1d65d3f66df97a6c" approved="yes">
+        <source>Configure with Newsman login</source>
+        <target state="final">Configurer avec la connexion Newsman</target>
+      </trans-unit>
+      <trans-unit id="b5adefa3b5b196d69568058ff1b19fdc" approved="yes">
+        <source>This step is required for the module to work properly. It grants Newsman.app API access to your store.</source>
+        <target state="final">Cette étape est nécessaire au bon fonctionnement du module. Elle accorde à Newsman.app l’accès à l’API de votre boutique.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
