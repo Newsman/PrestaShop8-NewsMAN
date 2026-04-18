@@ -256,7 +256,12 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface
                 'large_default'
             );
         } else {
-            $row['image_url'] = '';
+            $langIso = \Language::getIsoById($langId) ?: 'en';
+            $row['image_url'] = $link->getImageLink(
+                (string) ($product['link_rewrite'] ?? ''),
+                $langIso . '-default',
+                'large_default'
+            );
         }
 
         $row['category'] = '';
