@@ -51,10 +51,6 @@ class ConfigurationController extends FrameworkBundleAdminController
 
         $logFileReader->cleanOldLogs();
 
-        if (!$config->hasApiAccess()) {
-            return $this->redirectToRoute('newsmanv8_oauth_step1');
-        }
-
         $formHandler = $this->get('newsmanv8.form.configuration_handler');
         $form = $formHandler->getForm();
         $form->handleRequest($request);
