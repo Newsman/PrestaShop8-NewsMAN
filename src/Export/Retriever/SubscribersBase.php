@@ -234,7 +234,7 @@ class SubscribersBase extends AbstractRetriever implements RetrieverInterface
      */
     public function processSubscriber(array $subscriber, array $phones = [], array $shopIds = []): array
     {
-        throw new \Exception('Not implemented.');
+        throw new \BadMethodCallException('Not implemented.');
     }
 
     protected function isEmailSubscriptionActive(): bool

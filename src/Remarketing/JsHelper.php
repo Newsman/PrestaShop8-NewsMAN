@@ -29,6 +29,10 @@ class JsHelper
         return addslashes((string) $value);
     }
 
+    /**
+     * @deprecated since 8.0.3 — inline the literal `_nzm.run` directly in templates.
+     *             Kept for backward compatibility with third-party overrides.
+     */
     public static function getRunFunc(): string
     {
         return self::escapeHtml(self::JS_TRACK_RUN_FUNC);

@@ -44,7 +44,7 @@ class CustomSql extends AbstractRetriever implements RetrieverInterface
         $sql = isset($data['sql']) ? trim((string) $data['sql']) : '';
 
         if (empty($sql)) {
-            throw new \Exception('The "sql" parameter is required.');
+            throw new \InvalidArgumentException('The "sql" parameter is required.');
         }
 
         $this->validateSelectOnly($sql);
@@ -70,17 +70,17 @@ class CustomSql extends AbstractRetriever implements RetrieverInterface
         $parsed = $parser->parse($sql);
 
         if (empty($parsed)) {
-            throw new \Exception('Unable to parse the SQL query.');
+            throw new \InvalidArgumentException('Unable to parse the SQL query.');
         }
 
         $statementType = key($parsed);
 
         if ('SELECT' !== $statementType) {
-            throw new \Exception('Only SELECT queries are allowed. Got: ' . $statementType);
+            throw new \InvalidArgumentException('Only SELECT queries are allowed. Got: ' . $statementType);
         }
 
         if (isset($parsed['INTO'])) {
-            throw new \Exception('SELECT INTO is not allowed.');
+            throw new \InvalidArgumentException('SELECT INTO is not allowed.');
         }
     }
 
@@ -90,7 +90,7 @@ class CustomSql extends AbstractRetriever implements RetrieverInterface
         $stripped = preg_replace('/"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"/s', '', $stripped);
 
         if (strpos($stripped, ';') !== false) {
-            throw new \Exception('Multiple statements are not allowed.');
+            throw new \InvalidArgumentException('Multiple statements are not allowed.');
         }
     }
 

@@ -27,7 +27,7 @@ class BaseOrders extends AbstractRetriever implements RetrieverInterface
      */
     public function process(array $data = [], array $shopIds = []): array
     {
-        throw new \Exception('Not implemented.');
+        throw new \BadMethodCallException('Not implemented.');
     }
 
     /**

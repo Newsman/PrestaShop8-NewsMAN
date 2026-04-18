@@ -22,14 +22,13 @@ class CartTracking
      */
     public function getHtml(string $cartAjaxUrl, bool $isCheckoutSuccess = false): string
     {
-        $run = JsHelper::getRunFunc();
         $nzmTimeDiff = $isCheckoutSuccess ? 1000 : 5000;
 
-        $js = <<<JS
+        $js = <<<'JS'
 <script>
-    {$run}('require', 'ec');
+    _nzm.run('require', 'ec');
 
-    var ajaxurl = '{$cartAjaxUrl}';
+    var ajaxurl = __NEWSMAN_CART_AJAX_URL__;
     var isProd = true;
     let lastCart = sessionStorage.getItem('lastCart');
     if (lastCart === null) {
@@ -153,28 +152,28 @@ class CartTracking
     }
 
     function nzmClearCart() {
-        {$run}('ec:setAction', 'clear_cart');
-        {$run}('send', 'event', 'detail view', 'click', 'clearCart');
+        _nzm.run('ec:setAction', 'clear_cart');
+        _nzm.run('send', 'event', 'detail view', 'click', 'clearCart');
         sessionStorage.setItem('lastCart', JSON.stringify([]));
         unlockClearCart = false;
     }
 
     function nzmAddToCart(response) {
-        {$run}('ec:setAction', 'clear_cart');
+        _nzm.run('ec:setAction', 'clear_cart');
         detailviewEvent(response);
     }
 
     function detailviewEvent(response) {
-        {$run}('send', 'event', 'detail view', 'click', 'clearCart', null, function () {
+        _nzm.run('send', 'event', 'detail view', 'click', 'clearCart', null, function () {
             var products = [];
             for (var item in response) {
                 if (response[item].hasOwnProperty('id')) {
-                    {$run}('ec:addProduct', response[item]);
+                    _nzm.run('ec:addProduct', response[item]);
                     products.push(response[item]);
                 }
             }
-            {$run}('ec:setAction', 'add');
-            {$run}('send', 'event', 'UX', 'click', 'add to cart');
+            _nzm.run('ec:setAction', 'add');
+            _nzm.run('send', 'event', 'UX', 'click', 'add to cart');
             sessionStorage.setItem('lastCart', JSON.stringify(products));
             unlockClearCart = true;
         });
@@ -198,7 +197,7 @@ class CartTracking
                 }
                 var msClickPassed = new Date();
                 var timeDiff = msClickPassed.getTime() - msClick.getTime();
-                if (timeDiff > {$nzmTimeDiff}) {
+                if (timeDiff > __NEWSMAN_NZM_TIME_DIFF__) {
                     validate = false;
                 } else {
                     timeValidate = true;
@@ -225,6 +224,12 @@ class CartTracking
 </script>
 JS;
 
-        return $js . "\n";
+        return strtr($js, [
+            '__NEWSMAN_CART_AJAX_URL__' => json_encode(
+                $cartAjaxUrl,
+                JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
+            ),
+            '__NEWSMAN_NZM_TIME_DIFF__' => (string) $nzmTimeDiff,
+        ]) . "\n";
     }
 }
