@@ -73,6 +73,7 @@ class CartTracking
         setInterval(NewsmanAutoEvents, msRunAutoEvents);
         detectClicks();
         detectXHR();
+        detectFetch();
     }
 
     function timestampGenerator(min, max) {
@@ -219,6 +220,55 @@ class CartTracking
                 clearInterval(intervalId);
             }, 1);
             return proxied.apply(this, [].slice.call(arguments));
+        };
+    }
+
+    function detectFetch() {
+        if (typeof window.fetch !== 'function') {
+            return;
+        }
+        var origFetch = window.fetch;
+
+        window.fetch = function () {
+            var reqUrl = '';
+            try {
+                var a0 = arguments[0];
+                reqUrl = typeof a0 === 'string' ? a0 : (a0 && a0.url) || '';
+            } catch (e) {}
+
+            var promise = origFetch.apply(this, arguments);
+
+            promise.then(function (response) {
+                var validate = false;
+                var timeValidate = false;
+
+                var msClickPassed = new Date();
+                var timeDiff = msClickPassed.getTime() - msClick.getTime();
+                if (timeDiff > __NEWSMAN_NZM_TIME_DIFF__) {
+                    validate = false;
+                } else {
+                    timeValidate = true;
+                }
+
+                var _location = (response && response.url) || reqUrl;
+
+                if (timeValidate) {
+                    if (_location.indexOf('module/newsmanv8/cart') >= 0) {
+                        validate = false;
+                    } else {
+                        if (_location.indexOf(window.location.origin) !== -1) {
+                            validate = true;
+                        }
+                    }
+
+                    if (validate) {
+                        bufferedXHR = true;
+                        NewsmanAutoEvents();
+                    }
+                }
+            }).catch(function () {});
+
+            return promise;
         };
     }
 </script>

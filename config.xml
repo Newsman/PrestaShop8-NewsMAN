@@ -2,7 +2,7 @@
 <module>
     <name>newsmanv8</name>
     <displayName><![CDATA[Newsman]]></displayName>
-    <version><![CDATA[8.0.3]]></version>
+    <version><![CDATA[8.0.4]]></version>
     <description><![CDATA[Newsman email marketing and SMS integration for PrestaShop.]]></description>
     <author><![CDATA[Newsman by Dazoot]]></author>
     <tab><![CDATA[advertising_marketing]]></tab>

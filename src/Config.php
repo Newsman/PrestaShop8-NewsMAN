@@ -46,6 +46,7 @@ class Config
     public const KEY_REMARKETING_ID = 'NEWSMAN_REMARKETING_ID';
     public const KEY_REMARKETING_ANONYMIZE_IP = 'NEWSMAN_REMARKETING_ANONYMIZE_IP';
     public const KEY_REMARKETING_SEND_TELEPHONE = 'NEWSMAN_REMARKETING_SEND_TELEPHONE';
+    public const KEY_REMARKETING_THEME_CART_COMPATIBILITY = 'NEWSMAN_REMARKETING_THEME_CART_COMPATIBILITY';
     public const KEY_REMARKETING_SCRIPT_JS = 'NEWSMAN_REMARKETING_SCRIPT_JS';
     public const KEY_LOG_SEVERITY = 'NEWSMAN_LOG_SEVERITY';
     public const KEY_LOG_CLEAN_DAYS = 'NEWSMAN_LOG_CLEAN_DAYS';
@@ -94,6 +95,7 @@ class Config
             self::KEY_REMARKETING_ID,
             self::KEY_REMARKETING_ANONYMIZE_IP,
             self::KEY_REMARKETING_SEND_TELEPHONE,
+            self::KEY_REMARKETING_THEME_CART_COMPATIBILITY,
             self::KEY_REMARKETING_SCRIPT_JS,
             self::KEY_LOG_SEVERITY,
             self::KEY_LOG_CLEAN_DAYS,
@@ -176,6 +178,21 @@ class Config
     public function isRemarketingSendTelephone(?ShopConstraint $shopConstraint = null): bool
     {
         return (bool) $this->configuration->get(self::KEY_REMARKETING_SEND_TELEPHONE, false, $shopConstraint);
+    }
+
+    /**
+     * Theme Cart Compatibility: when enabled, remarketing JS uses background
+     * polling + XHR/fetch interception against the module's own cart endpoint —
+     * reliable on every theme at the cost of extra requests. When disabled, it
+     * intercepts the native PrestaShop /cart JSON responses and reads
+     * cart.products directly — lighter, but relies on the theme using standard
+     * /cart ajax flows. The default (enabled=1) is seeded by install() and by
+     * upgrade-8.0.4.php, so a missing value here means the user explicitly
+     * saved it as disabled.
+     */
+    public function isThemeCartCompatibility(?ShopConstraint $shopConstraint = null): bool
+    {
+        return (bool) $this->configuration->get(self::KEY_REMARKETING_THEME_CART_COMPATIBILITY, false, $shopConstraint);
     }
 
     public function getRemarketingScriptJs(?ShopConstraint $shopConstraint = null): string

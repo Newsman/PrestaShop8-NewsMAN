@@ -139,6 +139,15 @@ class ConfigurationType extends TranslatorAwareType
                 'required' => false,
                 'multistore_configuration_key' => Config::KEY_REMARKETING_SEND_TELEPHONE,
             ])
+            ->add('remarketing_theme_cart_compatibility', SwitchType::class, [
+                'label' => $this->trans('Theme Cart Compatibility', 'Modules.Newsmanv8.Admin'),
+                'required' => false,
+                'help' => $this->trans(
+                    'Enable for the most reliable detection of cart changes on any theme (background polling plus AJAX/fetch interception against the Newsman cart endpoint). Disable for a lighter mechanism that reads cart data directly from the native PrestaShop /cart JSON responses (no polling). If you disable this option, clear the PrestaShop cache and then use the newsman.app Remarketing <strong>Check installation</strong> tool to verify cart events are detected on your theme.',
+                    'Modules.Newsmanv8.Admin'
+                ),
+                'multistore_configuration_key' => Config::KEY_REMARKETING_THEME_CART_COMPATIBILITY,
+            ])
             ->add('log_severity', ChoiceType::class, [
                 'label' => $this->trans('Log Severity', 'Modules.Newsmanv8.Admin'),
                 'required' => false,

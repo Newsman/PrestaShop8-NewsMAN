@@ -86,6 +86,11 @@ Remarketing lets Newsman track what pages and products your visitors view, so yo
 
 - **Send Telephone** - Include customer phone numbers in remarketing data. Only applies to logged-in customers who have provided a phone number.
 
+- **Theme Cart Compatibility** - Controls how the remarketing pixel detects cart changes. Enabled by default.
+  - **Enabled** - Uses background polling and listens to AJAX/fetch requests against the Newsman cart endpoint to detect cart changes. This is the most reliable mode and works on every theme, but it generates extra background requests on every page.
+  - **Disabled** - A lighter mode that listens to the native PrestaShop `/cart` AJAX JSON responses and reads `cart.products` directly. No background polling and no requests to the Newsman cart endpoint, but it only works if your theme uses standard PrestaShop cart flows (Classic and most custom themes qualify).
+  - **Note:** If you disable this option, clear the PrestaShop cache and then use the newsman.app Remarketing **Check installation** tool to verify that cart add/remove/clear events are being detected correctly on your theme.
+
 ---
 
 ## Developer Settings
