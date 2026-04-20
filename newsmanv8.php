@@ -165,6 +165,7 @@ class Newsmanv8 extends Module
         $configuration->set(Config::KEY_SERVER_IP, '');
         $configuration->set(Config::KEY_REMARKETING_STATUS, 1);
         $configuration->set(Config::KEY_REMARKETING_SEND_TELEPHONE, 1);
+        $configuration->set(Config::KEY_REMARKETING_THEME_CART_COMPATIBILITY, 1);
         $configuration->set(Config::KEY_LOG_SEVERITY, Config::LOG_ERROR);
         $configuration->set(Config::KEY_LOG_CLEAN_DAYS, Config::DEFAULT_LOG_CLEAN_DAYS);
         $configuration->set(Config::KEY_API_TIMEOUT, Config::DEFAULT_API_TIMEOUT);

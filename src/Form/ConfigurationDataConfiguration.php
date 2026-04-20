@@ -49,6 +49,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
         'remarketing_id',
         'remarketing_anonymize_ip',
         'remarketing_send_telephone',
+        'remarketing_theme_cart_compatibility',
         'log_severity',
         'log_clean_days',
         'api_timeout',
@@ -71,6 +72,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
         'remarketing_id' => Config::KEY_REMARKETING_ID,
         'remarketing_anonymize_ip' => Config::KEY_REMARKETING_ANONYMIZE_IP,
         'remarketing_send_telephone' => Config::KEY_REMARKETING_SEND_TELEPHONE,
+        'remarketing_theme_cart_compatibility' => Config::KEY_REMARKETING_THEME_CART_COMPATIBILITY,
         'log_severity' => Config::KEY_LOG_SEVERITY,
         'log_clean_days' => Config::KEY_LOG_CLEAN_DAYS,
         'api_timeout' => Config::KEY_API_TIMEOUT,
@@ -121,6 +123,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
             'remarketing_id' => (string) $this->configuration->get(Config::KEY_REMARKETING_ID, '', $shopConstraint),
             'remarketing_anonymize_ip' => (bool) $this->configuration->get(Config::KEY_REMARKETING_ANONYMIZE_IP, false, $shopConstraint),
             'remarketing_send_telephone' => (bool) $this->configuration->get(Config::KEY_REMARKETING_SEND_TELEPHONE, false, $shopConstraint),
+            'remarketing_theme_cart_compatibility' => $this->newsmanConfig->isThemeCartCompatibility($shopConstraint),
             'log_severity' => (int) $this->configuration->get(Config::KEY_LOG_SEVERITY, Config::LOG_NONE, $shopConstraint),
             'log_clean_days' => (int) $this->configuration->get(Config::KEY_LOG_CLEAN_DAYS, Config::DEFAULT_LOG_CLEAN_DAYS, $shopConstraint),
             'api_timeout' => (int) $this->configuration->get(Config::KEY_API_TIMEOUT, Config::DEFAULT_API_TIMEOUT, $shopConstraint),
@@ -180,6 +183,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
         $resolver->setAllowedTypes('remarketing_id', ['string', 'null']);
         $resolver->setAllowedTypes('remarketing_anonymize_ip', 'bool');
         $resolver->setAllowedTypes('remarketing_send_telephone', 'bool');
+        $resolver->setAllowedTypes('remarketing_theme_cart_compatibility', 'bool');
         $resolver->setAllowedTypes('log_severity', 'int');
         $resolver->setAllowedTypes('log_clean_days', 'int');
         $resolver->setAllowedTypes('api_timeout', 'int');

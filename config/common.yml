@@ -165,6 +165,7 @@ services:
     arguments:
       $configuration: '@prestashop.adapter.legacy.configuration'
   PrestaShop\Module\Newsmanv8\Remarketing\CartTracking: ~
+  PrestaShop\Module\Newsmanv8\Remarketing\CartTrackingNative: ~
   PrestaShop\Module\Newsmanv8\Remarketing\CustomerIdentify: ~
   PrestaShop\Module\Newsmanv8\Remarketing\ProductView: ~
   PrestaShop\Module\Newsmanv8\Remarketing\PageView: ~

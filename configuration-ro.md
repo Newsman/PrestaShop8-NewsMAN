@@ -86,6 +86,11 @@ Remarketing-ul permite Newsman sa urmareasca ce pagini si produse vizualizeaza v
 
 - **Send Telephone** - Include numerele de telefon ale clientilor in datele de remarketing. Se aplica doar clientilor autentificati care au furnizat un numar de telefon.
 
+- **Theme Cart Compatibility** - Controleaza modul in care pixelul de remarketing detecteaza modificarile din cos. Activat implicit.
+  - **Activat** - Foloseste polling in fundal si intercepteaza cererile AJAX/fetch catre endpoint-ul cart al Newsman pentru a detecta schimbarile din cos. Este modul cel mai fiabil si functioneaza pe orice tema, dar genereaza cereri suplimentare in fundal pe fiecare pagina.
+  - **Dezactivat** - Mod mai usor care asculta raspunsurile JSON AJAX ale PrestaShop pentru `/cart` si citeste direct `cart.products`. Fara polling in fundal si fara cereri catre endpoint-ul cart al Newsman, dar functioneaza doar daca tema ta foloseste fluxurile standard PrestaShop pentru cos (Classic si majoritatea temelor personalizate se incadreaza).
+  - **Nota:** Daca dezactivezi aceasta optiune, goleste cache-ul PrestaShop si apoi foloseste instrumentul **Check installation** din newsman.app Remarketing pentru a verifica daca evenimentele de adaugare/stergere/golire a cosului sunt detectate corect pe tema ta.
+
 ---
 
 ## Setari pentru Dezvoltatori

@@ -23,6 +23,7 @@ class Renderer
     protected Config $config;
     protected TrackingScript $trackingScript;
     protected CartTracking $cartTracking;
+    protected CartTrackingNative $cartTrackingNative;
     protected CustomerIdentify $customerIdentify;
     protected ProductView $productView;
     protected PageView $pageView;
@@ -33,6 +34,7 @@ class Renderer
         Config $config,
         TrackingScript $trackingScript,
         CartTracking $cartTracking,
+        CartTrackingNative $cartTrackingNative,
         CustomerIdentify $customerIdentify,
         ProductView $productView,
         PageView $pageView,
@@ -42,6 +44,7 @@ class Renderer
         $this->config = $config;
         $this->trackingScript = $trackingScript;
         $this->cartTracking = $cartTracking;
+        $this->cartTrackingNative = $cartTrackingNative;
         $this->customerIdentify = $customerIdentify;
         $this->productView = $productView;
         $this->pageView = $pageView;
@@ -100,8 +103,12 @@ class Renderer
 
         $output = '';
 
-        $cartUrl = $this->getCartAjaxUrl($context);
-        $output .= $this->cartTracking->getHtml($cartUrl, $isCheckoutSuccess);
+        if ($this->config->isThemeCartCompatibility($shopConstraint)) {
+            $cartUrl = $this->getCartAjaxUrl($context);
+            $output .= $this->cartTracking->getHtml($cartUrl, $isCheckoutSuccess);
+        } else {
+            $output .= $this->cartTrackingNative->getHtml();
+        }
 
         if (!$isCheckoutSuccess && $context->customer->isLogged()) {
             $output .= $this->customerIdentify->getHtml(
