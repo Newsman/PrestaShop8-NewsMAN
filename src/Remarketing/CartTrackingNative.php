@@ -34,6 +34,40 @@ class CartTrackingNative
     (function () {
         var isProd = true;
 
+        function aggregateProducts(items) {
+            var byId = {};
+            var order = [];
+            for (var i = 0; i < items.length; i++) {
+                var it = items[i];
+                if (!it || !it.id) {
+                    continue;
+                }
+                if (!byId.hasOwnProperty(it.id)) {
+                    byId[it.id] = {
+                        id: it.id,
+                        name: it.name || '',
+                        price: it.price,
+                        quantity: it.quantity
+                    };
+                    order.push(it.id);
+                    continue;
+                }
+                var acc = byId[it.id];
+                acc.quantity += it.quantity;
+                if ((!acc.name || acc.name === '') && it.name) {
+                    acc.name = it.name;
+                }
+                if ((acc.price === 0 || isNaN(acc.price)) && !isNaN(it.price)) {
+                    acc.price = it.price;
+                }
+            }
+            var out = [];
+            for (var k = 0; k < order.length; k++) {
+                out.push(byId[order[k]]);
+            }
+            return out;
+        }
+
         function readLastCart() {
             try {
                 var raw = sessionStorage.getItem('lastCart');
@@ -63,14 +97,28 @@ class CartTrackingNative
         }
 
         function nzmAddToCart(products) {
+            // console.log('newsman remarketing: nzmAddToCart', JSON.stringify(products));
             _nzm.run('ec:setAction', 'clear_cart');
             _nzm.run('send', 'event', 'detail view', 'click', 'clearCart', null, function () {
                 var sent = [];
                 for (var i = 0; i < products.length; i++) {
                     var item = products[i];
                     if (item && item.hasOwnProperty('id')) {
-                        _nzm.run('ec:addProduct', item);
-                        sent.push(item);
+                        // Pass a fresh copy to _nzm — Newsman's send pipeline mutates
+                        // queued product objects, which would otherwise strip "name"
+                        // from the entry we persist to sessionStorage.
+                        _nzm.run('ec:addProduct', {
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity
+                        });
+                        sent.push({
+                            id: item.id,
+                            name: item.name,
+                            price: item.price,
+                            quantity: item.quantity
+                        });
                     }
                 }
                 _nzm.run('ec:setAction', 'add');
@@ -100,7 +148,15 @@ class CartTrackingNative
                     continue;
                 }
                 var name = (p.name !== undefined && p.name !== null) ? String(p.name) : '';
-                var qty = parseInt(p.quantity, 10);
+                var rawQty;
+                if (p.cart_quantity !== undefined && p.cart_quantity !== null) {
+                    rawQty = p.cart_quantity;
+                } else if (p.quantity_wanted !== undefined && p.quantity_wanted !== null) {
+                    rawQty = p.quantity_wanted;
+                } else {
+                    rawQty = p.quantity;
+                }
+                var qty = parseInt(rawQty, 10);
                 if (isNaN(qty) || qty < 0) {
                     qty = 0;
                 }
@@ -129,7 +185,9 @@ class CartTrackingNative
                     quantity: qty
                 });
             }
-            return mapped;
+            var aggregated = aggregateProducts(mapped);
+            // console.log('newsman remarketing: extractProducts mapped=', JSON.stringify(mapped), ' aggregated=', JSON.stringify(aggregated));
+            return aggregated;
         }
 
         function processPayload(payload) {
