@@ -181,21 +181,18 @@ class Config
     }
 
     /**
-     * Theme Cart Compatibility: when enabled (default), remarketing JS uses
-     * background polling + XHR/fetch interception against the module's own
-     * cart endpoint — reliable on every theme at the cost of extra requests.
-     * When disabled, it intercepts the native PrestaShop /cart JSON responses
-     * and reads cart.products directly — lighter, but relies on the theme
-     * using standard /cart ajax flows.
+     * Theme Cart Compatibility: when enabled, remarketing JS uses background
+     * polling + XHR/fetch interception against the module's own cart endpoint —
+     * reliable on every theme at the cost of extra requests. When disabled, it
+     * intercepts the native PrestaShop /cart JSON responses and reads
+     * cart.products directly — lighter, but relies on the theme using standard
+     * /cart ajax flows. The default (enabled=1) is seeded by install() and by
+     * upgrade-8.0.4.php, so a missing value here means the user explicitly
+     * saved it as disabled.
      */
     public function isThemeCartCompatibility(?ShopConstraint $shopConstraint = null): bool
     {
-        $value = $this->configuration->get(self::KEY_REMARKETING_THEME_CART_COMPATIBILITY, null, $shopConstraint);
-        if ($value === null || $value === false || $value === '') {
-            return true;
-        }
-
-        return (bool) $value;
+        return (bool) $this->configuration->get(self::KEY_REMARKETING_THEME_CART_COMPATIBILITY, false, $shopConstraint);
     }
 
     public function getRemarketingScriptJs(?ShopConstraint $shopConstraint = null): string
