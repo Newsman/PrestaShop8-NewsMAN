@@ -49,7 +49,7 @@ class AdminEmailsubscriptionSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        /** @phpstan-ignore-next-line */
+        // @phpstan-ignore-next-line
         if (!(method_exists($event, 'isMainRequest') ? $event->isMainRequest() : $event->isMasterRequest())) {
             return;
         }
