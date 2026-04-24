@@ -103,11 +103,11 @@ class Renderer
 
         $output = '';
 
+        $cartUrl = $this->getCartAjaxUrl($context);
         if ($this->config->isThemeCartCompatibility($shopConstraint)) {
-            $cartUrl = $this->getCartAjaxUrl($context);
             $output .= $this->cartTracking->getHtml($cartUrl, $isCheckoutSuccess);
         } else {
-            $output .= $this->cartTrackingNative->getHtml();
+            $output .= $this->cartTrackingNative->getHtml($cartUrl, $this->getCookiePath($context));
         }
 
         if (!$isCheckoutSuccess && $context->customer->isLogged()) {
@@ -200,6 +200,21 @@ class Renderer
     {
         return rtrim($context->link->getBaseLink(), '/')
             . '/index.php?fc=module&module=newsmanv8&controller=cart';
+    }
+
+    /**
+     * Cookie path for the nzm_cart_sync bootstrap cookie. Scoped to the
+     * current shop's base URL path so multistore installs with per-store
+     * virtual URIs (e.g., /en/, /ro/) don't share one session flag.
+     */
+    protected function getCookiePath(\Context $context): string
+    {
+        $path = (string) parse_url($context->link->getBaseLink(), PHP_URL_PATH);
+        if ($path === '' || $path[0] !== '/') {
+            return '/';
+        }
+
+        return $path;
     }
 
     /**
