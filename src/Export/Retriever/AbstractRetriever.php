@@ -66,7 +66,18 @@ abstract class AbstractRetriever implements RetrieverInterface
             $params['order'] = 'DESC';
         }
         if (!$sortFound) {
-            unset($params['sort'], $params['order']);
+            // Without an explicit ORDER BY, MySQL does not guarantee a stable row
+            // order between two LIMIT pages of the same query. Paginated exports
+            // then repeat some rows and skip others, so part of the catalog never
+            // reaches Newsman. Fall back to the deterministic sort field of the
+            // retriever when it defines one.
+            $defaultSort = $this->getDefaultSortField();
+            if (!empty($defaultSort)) {
+                $params['sort'] = $defaultSort;
+                $params['order'] = 'ASC';
+            } else {
+                unset($params['sort'], $params['order']);
+            }
         }
 
         if (!isset($data['default_page_size'])) {
@@ -179,6 +190,17 @@ abstract class AbstractRetriever implements RetrieverInterface
     public function getAllowedSortFields(): array
     {
         return [];
+    }
+
+    /**
+     * Get the SQL field used to keep paginated exports deterministic.
+     *
+     * Returns an empty string when the retriever builds its own ORDER BY clause
+     * or when it is not paginated.
+     */
+    public function getDefaultSortField(): string
+    {
+        return '';
     }
 
     /**

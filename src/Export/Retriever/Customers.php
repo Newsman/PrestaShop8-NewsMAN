@@ -309,4 +309,9 @@ class Customers extends AbstractRetriever implements RetrieverInterface
             'customer_id' => 'c.id_customer',
         ]);
     }
+
+    public function getDefaultSortField(): string
+    {
+        return 'c.id_customer';
+    }
 }

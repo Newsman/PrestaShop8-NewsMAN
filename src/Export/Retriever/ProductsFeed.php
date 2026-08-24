@@ -432,4 +432,9 @@ class ProductsFeed extends AbstractRetriever implements RetrieverInterface
             'price' => 'p.price',
         ]);
     }
+
+    public function getDefaultSortField(): string
+    {
+        return 'p.id_product';
+    }
 }

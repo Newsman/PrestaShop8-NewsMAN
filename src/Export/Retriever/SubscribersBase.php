@@ -317,4 +317,9 @@ class SubscribersBase extends AbstractRetriever implements RetrieverInterface
             'modified_at' => 's.date_modified',
         ]);
     }
+
+    public function getDefaultSortField(): string
+    {
+        return 's.subscriber_id';
+    }
 }
