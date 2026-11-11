@@ -144,7 +144,7 @@ class Save
             $context->setListId($this->config->getListId($shopConstraint))
                 ->setOrders([$orderRow]);
 
-            $this->saveOrdersService->execute($context);
+            $this->saveOrdersService->executeForShop($context, $shopConstraint);
 
             \Hook::exec('actionNewsmanAfterOrderSave', [
                 'order_id' => $orderId,

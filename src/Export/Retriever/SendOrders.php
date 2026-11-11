@@ -86,7 +86,7 @@ class SendOrders extends BaseOrders implements RetrieverInterface
                 $context->setListId($this->config->getListId($shopConstraint))
                     ->setOrders($batch);
 
-                $apiResults[] = $this->saveOrdersService->execute($context);
+                $apiResults[] = $this->saveOrdersService->executeForShop($context, $shopConstraint);
 
                 $count += count($batch);
             } catch (\Exception $e) {

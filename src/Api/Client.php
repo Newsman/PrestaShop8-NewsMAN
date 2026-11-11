@@ -20,6 +20,17 @@ if (!defined('_PS_VERSION_')) {
 
 class Client implements ClientInterface
 {
+    /**
+     * Error code when NewsMAN cannot be reached (connection refused, timeout, DNS error)
+     * and there is no HTTP status.
+     */
+    public const ERROR_CODE_CONNECTION = 599;
+
+    /**
+     * Error code of an error answer without a code.
+     */
+    public const ERROR_CODE_UNKNOWN = 1;
+
     protected Config $config;
     protected Logger $logger;
     protected ?int $status = null;
@@ -125,19 +136,23 @@ class Client implements ClientInterface
                 $result = json_decode($remoteResult['body'], true);
                 $apiError = $this->parseApiError($result);
                 if (false !== $apiError) {
-                    $this->errorCode = (int) $apiError['code'];
+                    $this->errorCode = (int) $apiError['code'] > 0 ? (int) $apiError['code'] : self::ERROR_CODE_UNKNOWN;
                     $this->errorMessage = $apiError['message'];
                     $this->logger->warning($this->errorCode . ' | ' . $this->errorMessage);
                 } else {
                     $this->logger->notice(json_encode($result));
                 }
             } else {
-                $this->errorCode = $this->status;
+                // No HTTP status at all means NewsMAN was not reached.
+                $this->errorCode = $this->status > 0 ? $this->status : self::ERROR_CODE_CONNECTION;
                 if (stripos($remoteResult['body'], '{') !== false) {
                     $body = json_decode($remoteResult['body'], true);
                     $apiError = $this->parseApiError($body);
                     if (false !== $apiError) {
-                        $this->errorCode = (int) $apiError['code'];
+                        // Without a NewsMAN code the HTTP status stays the error code.
+                        if ((int) $apiError['code'] > 0) {
+                            $this->errorCode = (int) $apiError['code'];
+                        }
                         $this->errorMessage = $apiError['message'];
                     } else {
                         $this->errorMessage = 'Error: ' . $this->errorCode;
@@ -146,7 +161,8 @@ class Client implements ClientInterface
                 $this->logger->error($this->status . ' | ' . $remoteResult['body']);
             }
         } catch (\Throwable $e) {
-            $this->errorCode = (int) $e->getCode();
+            // A curl error has no HTTP status (code 0): NewsMAN was not reached.
+            $this->errorCode = (int) $e->getCode() > 0 ? (int) $e->getCode() : self::ERROR_CODE_CONNECTION;
             $this->errorMessage = $e->getMessage();
             $this->logger->logException($e);
         }

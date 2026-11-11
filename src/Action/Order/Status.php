@@ -63,7 +63,7 @@ class Status
                 ->setOrderId((string) $orderId)
                 ->setOrderStatus($orderStatus);
 
-            $this->setPurchaseStatus->execute($context);
+            $this->setPurchaseStatus->executeForShop($context, $shopConstraint);
         } catch (\Exception $e) {
             $this->logger->logException($e);
         }

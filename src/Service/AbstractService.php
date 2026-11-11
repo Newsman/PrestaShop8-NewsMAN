@@ -65,6 +65,24 @@ abstract class AbstractService implements ServiceInterface
         return $this->shopConstraint;
     }
 
+    /**
+     * Execute with the Newsman account (user ID and API key) of the given shop, so the call uses the
+     * credentials of the same shop as its list. Null uses the current shop context, as execute() does.
+     *
+     * @return array<mixed>|string
+     */
+    public function executeForShop(AbstractContext $context, ?ShopConstraint $shopConstraint): array|string
+    {
+        $previousShopConstraint = $this->shopConstraint;
+        $this->shopConstraint = $shopConstraint;
+
+        try {
+            return $this->execute($context);
+        } finally {
+            $this->shopConstraint = $previousShopConstraint;
+        }
+    }
+
     protected function createApiContext(): ContextInterface
     {
         $context = new ApiContext();

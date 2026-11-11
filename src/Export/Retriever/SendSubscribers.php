@@ -68,8 +68,7 @@ class SendSubscribers extends SubscribersBase
                     ->setCsvData($csvBatch)
                     ->setAdditionalFields([]);
 
-                $this->exportCsvSubscribers->setShopConstraint($shopConstraint);
-                $apiResults[] = $this->exportCsvSubscribers->execute($context);
+                $apiResults[] = $this->exportCsvSubscribers->executeForShop($context, $shopConstraint);
 
                 $count += count($csvBatch);
             } catch (\Exception $e) {

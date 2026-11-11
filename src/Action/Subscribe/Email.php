@@ -30,6 +30,11 @@ if (!defined('_PS_VERSION_')) {
 
 class Email
 {
+    /**
+     * Newsman API error code of subscriber.saveUnsubscribe for an email that is not on the list.
+     */
+    public const API_CODE_NO_SUCH_SUBSCRIBER = 121;
+
     protected Config $config;
     protected Logger $logger;
     protected InitSubscribeEmail $initSubscribeEmail;
@@ -136,7 +141,7 @@ class Email
             ->setOptions($options);
 
         try {
-            $this->initSubscribeEmail->execute($context);
+            $this->initSubscribeEmail->executeForShop($context, $shopConstraint);
 
             \Hook::exec('actionNewsmanAfterSubscribe', [
                 'email' => $email,
@@ -178,7 +183,7 @@ class Email
             ->setProperties($properties);
 
         try {
-            $subscriberId = $this->subscribeEmail->execute($context);
+            $subscriberId = $this->subscribeEmail->executeForShop($context, $shopConstraint);
 
             \Hook::exec('actionNewsmanAfterSubscribe', [
                 'email' => $email,
@@ -194,7 +199,7 @@ class Email
                     ->setSubscriberId((string) $subscriberId);
 
                 try {
-                    $this->addSubscriber->execute($segContext);
+                    $this->addSubscriber->executeForShop($segContext, $shopConstraint);
                 } catch (\Exception $e) {
                     $this->logger->logException($e);
                 }
@@ -223,13 +228,64 @@ class Email
             ->setIp($this->ipAddress->getIp());
 
         try {
-            $this->unsubscribeEmail->execute($context);
+            $this->unsubscribeEmail->executeForShop($context, $shopConstraint);
 
             \Hook::exec('actionNewsmanAfterUnsubscribe', [
                 'email' => $email,
             ]);
         } catch (\Exception $e) {
             $this->logger->logException($e);
+        }
+    }
+
+    /**
+     * Unsubscribe an email right away because of a personal data erasure request.
+     *
+     * Always a direct unsubscribe (no confirmation email, also with Double Opt-in), sent with the
+     * Newsman account of the given shop. An email that is not on the list counts as done.
+     *
+     * @return bool False when Newsman could not be reached or returned another error
+     */
+    public function unsubscribeForErasure(string $email, ShopConstraint $shopConstraint): bool
+    {
+        if (empty($email) || !$this->isAllow($shopConstraint)) {
+            return true;
+        }
+
+        $hookResponses = \Hook::exec('actionNewsmanBeforeUnsubscribe', [
+            'email' => $email,
+        ], null, true);
+        if (is_array($hookResponses) && $this->isHookCancelled($hookResponses)) {
+            return true;
+        }
+
+        $context = new UnsubscribeContext();
+        $context->setListId($this->config->getListId($shopConstraint))
+            ->setEmail($email)
+            ->setIp($this->ipAddress->getIp());
+
+        try {
+            $this->unsubscribeEmail->executeForShop($context, $shopConstraint);
+
+            \Hook::exec('actionNewsmanAfterUnsubscribe', [
+                'email' => $email,
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            if ($e instanceof \RuntimeException && self::API_CODE_NO_SUCH_SUBSCRIBER === $e->getCode()) {
+                $this->logger->info(sprintf(
+                    'Email %s is not on the Newsman list %s, nothing to unsubscribe',
+                    $email,
+                    $context->getListId()
+                ));
+
+                return true;
+            }
+
+            $this->logger->logException($e);
+
+            return false;
         }
     }
 }

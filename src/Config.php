@@ -448,6 +448,29 @@ class Config
     }
 
     /**
+     * Get one shop constraint per distinct Newsman account and list across all enabled shops
+     * (the first shop found for each account and list).
+     *
+     * @return array<string, ShopConstraint> Keyed by "user ID|list ID"
+     */
+    public function getShopConstraintsPerList(): array
+    {
+        $constraints = [];
+        foreach (\Shop::getShops(true, null, true) as $shopId) {
+            $sc = ShopConstraint::shop((int) $shopId);
+            if (!$this->isEnabled($sc)) {
+                continue;
+            }
+            $key = $this->getUserId($sc) . '|' . $this->getListId($sc);
+            if (!isset($constraints[$key])) {
+                $constraints[$key] = $sc;
+            }
+        }
+
+        return $constraints;
+    }
+
+    /**
      * Check if any shop in the given list has remarketing send telephone enabled.
      *
      * @param array<int> $shopIds

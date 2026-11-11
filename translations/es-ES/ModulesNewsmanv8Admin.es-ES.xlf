@@ -274,6 +274,10 @@
         <source>This step is required for the module to work properly. It grants Newsman.app API access to your store.</source>
         <target state="final">Este paso es necesario para que el módulo funcione correctamente. Concede a Newsman.app acceso a la API de su tienda.</target>
       </trans-unit>
+      <trans-unit id="ad526950bf5ee4e8dd1f1829d58fa055" approved="yes">
+        <source>Newsman: the email could not be unsubscribed from the Newsman list. See the Newsman logs.</source>
+        <target state="final">Newsman: no se pudo dar de baja el email de la lista de Newsman. Consulte los logs de Newsman.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -274,6 +274,10 @@
         <source>This step is required for the module to work properly. It grants Newsman.app API access to your store.</source>
         <target state="final">Acest pas este necesar pentru ca modulul să funcționeze corect. Acordă Newsman.app acces API la magazinul dumneavoastră.</target>
       </trans-unit>
+      <trans-unit id="ad526950bf5ee4e8dd1f1829d58fa055" approved="yes">
+        <source>Newsman: the email could not be unsubscribed from the Newsman list. See the Newsman logs.</source>
+        <target state="final">Newsman: adresa de email nu a putut fi dezabonată din lista Newsman. Consultați logurile Newsman.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

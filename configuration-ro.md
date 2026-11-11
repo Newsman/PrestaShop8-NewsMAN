@@ -146,3 +146,9 @@ Da. Intr-o configuratie PrestaShop multi-shop, puteti configura liste, segmente,
 ### Ce se intampla cand un client se aboneaza la newsletter?
 
 Cand un client se aboneaza prin formularul de newsletter, inregistrarea contului sau pagina de setari a contului, modulul trimite automat abonarea catre Newsman folosind lista si segmentul configurate. Daca Double Opt-in este activat, Newsman va trimite mai intai un email de confirmare.
+
+### Ce se intampla cand sterg datele unei persoane cu modulul Official GDPR compliance?
+
+Cand stergeti datele unei persoane din tab-ul **Personal data management** al modulului Official GDPR compliance (psgdpr), pentru un cont de client sau doar pentru un email (de exemplu un abonat la newsletter fara cont), modulul dezaboneaza imediat acel email din lista Newsman a fiecarui magazin, fara email de confirmare. Face acest lucru chiar daca magazinul nu are o abonare pentru acel email, deoarece emailul poate fi adaugat in lista Newsman si pe alte cai. Daca Newsman nu poate fi contactat, eroarea este scrisa in logurile modulului, iar stergerea din PrestaShop se finalizeaza oricum. Contactul ramane in Newsman ca dezabonat; pentru a-l sterge complet, folositi contul dvs. Newsman.
+
+Newsman apare in lista de module conforme a modulului GDPR. Apare si in tab-ul **Consent checkbox customization** al acelui modul, unde setarea sa nu are niciun efect: Newsman nu are un formular propriu pe storefront (formularul de newsletter apartine modulului Newsletter subscription). Modulul nu stocheaza date personale proprii in PrestaShop, deci nu adauga nimic la exportul datelor personale.

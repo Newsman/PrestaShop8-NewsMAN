@@ -15,6 +15,7 @@ use PrestaShop\Module\Newsmanv8\Action\Subscribe\Email as SubscribeEmailAction;
 use PrestaShop\Module\Newsmanv8\Config;
 use PrestaShop\Module\Newsmanv8\Logger;
 use PrestaShop\Module\Newsmanv8\Remarketing\Renderer as RemarketingRenderer;
+use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -35,6 +36,9 @@ class Newsmanv8 extends Module
         'actionObjectCustomerUpdateBefore',
         'actionObjectCustomerDeleteBefore',
         'actionNewsletterRegistrationAfter',
+        // Official GDPR compliance module (psgdpr).
+        'actionDeleteGDPRCustomer',
+        'registerGDPRConsent',
         'actionValidateOrder',
         'actionOrderStatusPostUpdate',
         'actionFrontControllerSetMedia',
@@ -114,11 +118,28 @@ class Newsmanv8 extends Module
         ],
     ];
 
+    /**
+     * Emails already unsubscribed from a Newsman list in this request, by a personal data erasure or by
+     * a customer delete, as "email|user ID|list ID" keys, so the other hook does not send the same call
+     * again (psgdpr 1.x runs the erasure hook before deleting the customer, psgdpr 2.x deletes first).
+     *
+     * @var array<string, bool>
+     */
+    protected static array $unsubscribedEmailLists = [];
+
+    /**
+     * Emails of the customers deleted in this request, by customer ID: psgdpr 2.x deletes the customer
+     * first and then runs the erasure hook with the customer ID only.
+     *
+     * @var array<int, string>
+     */
+    protected static array $deletedCustomerEmails = [];
+
     public function __construct()
     {
         $this->name = 'newsmanv8';
         $this->tab = 'advertising_marketing';
-        $this->version = '8.0.8';
+        $this->version = '8.0.9';
         $this->author = 'Newsman by Dazoot';
         $this->module_key = '00c167886eb6f3c7d318ea806a563b32';
         $this->need_instance = 0;
@@ -489,6 +510,10 @@ class Newsmanv8 extends Module
         /** @var Customer $customer */
         $customer = $params['object'];
 
+        if (!empty($customer->id) && !empty($customer->email)) {
+            static::$deletedCustomerEmails[(int) $customer->id] = (string) $customer->email;
+        }
+
         if (empty($customer->email) || !$customer->newsletter) {
             return;
         }
@@ -500,9 +525,129 @@ class Newsmanv8 extends Module
             return;
         }
 
+        // psgdpr 1.x runs actionDeleteGDPRCustomer first and then deletes the customer:
+        // the email may already be unsubscribed from this list in this request.
+        $key = $this->getErasedEmailListKey($customer->email, $config, $shopConstraint);
+        if (isset(static::$unsubscribedEmailLists[$key])) {
+            return;
+        }
+        static::$unsubscribedEmailLists[$key] = true;
+
         /** @var SubscribeEmailAction $action */
         $action = $this->get(SubscribeEmailAction::class);
         $action->unsubscribe($customer->email, $shopConstraint);
+    }
+
+    /**
+     * Hook: personal data erasure in the Official GDPR compliance module (psgdpr), for a customer
+     * account or for an email only (e.g. a newsletter subscriber without an account).
+     *
+     * The email is unsubscribed right away from the Newsman list of every shop, whatever the shop
+     * stores locally, because it can be on the list from other sources. A Newsman error is logged
+     * and never stops the erasure.
+     *
+     * Area: Admin
+     *
+     * psgdpr 1.x passes the customer fields, or ['email' => ...], or ['phone' => ...]. psgdpr 2.x wraps
+     * the payload in $params[0]: ['email' => ...], ['phone' => ...], or the ID of the customer it has
+     * just deleted (the email is then taken from hookActionObjectCustomerDeleteBefore).
+     *
+     * @param array<int|string, mixed> $params
+     *
+     * @return string json_encode(true), or json_encode() of an error message, as psgdpr expects
+     */
+    public function hookActionDeleteGDPRCustomer(array $params): string
+    {
+        $email = $this->getErasureEmail($params);
+        if ('' === $email || !Validate::isEmail($email)) {
+            return (string) json_encode(true);
+        }
+
+        $done = true;
+        try {
+            /** @var Config $config */
+            $config = $this->get(Config::class);
+            /** @var SubscribeEmailAction $action */
+            $action = $this->get(SubscribeEmailAction::class);
+
+            foreach ($config->getShopConstraintsPerList() as $shopConstraint) {
+                // psgdpr 2.x: the customer delete may already have unsubscribed the email from this list.
+                $key = $this->getErasedEmailListKey($email, $config, $shopConstraint);
+                if (isset(static::$unsubscribedEmailLists[$key])) {
+                    continue;
+                }
+                static::$unsubscribedEmailLists[$key] = true;
+                if (!$action->unsubscribeForErasure($email, $shopConstraint)) {
+                    $done = false;
+                }
+            }
+        } catch (Throwable $e) {
+            $done = false;
+            try {
+                /** @var Logger $logger */
+                $logger = $this->get(Logger::class);
+                $logger->logException($e);
+            } catch (Throwable $loggerError) {
+                // Logging is best-effort, the erasure must go on.
+            }
+        }
+
+        if ($done) {
+            return (string) json_encode(true);
+        }
+
+        return (string) json_encode($this->trans(
+            'Newsman: the email could not be unsubscribed from the Newsman list. See the Newsman logs.',
+            [],
+            'Modules.Newsmanv8.Admin'
+        ));
+    }
+
+    /**
+     * Hook: lists Newsman among the compliant modules of the Official GDPR compliance module (psgdpr).
+     *
+     * psgdpr only reads which modules are registered on this hook and never runs it. Newsman has no
+     * storefront form of its own, so there is no consent checkbox to show.
+     *
+     * Area: Admin
+     *
+     * @param array<string, mixed> $params
+     *
+     * @return void
+     */
+    public function hookRegisterGDPRConsent(array $params): void
+    {
+    }
+
+    /**
+     * Email of a personal data erasure request, for psgdpr 1.x and 2.x payloads.
+     *
+     * @param array<int|string, mixed> $params
+     */
+    protected function getErasureEmail(array $params): string
+    {
+        $data = $params;
+        if (!isset($params['email']) && array_key_exists(0, $params)) {
+            $data = $params[0];
+        }
+
+        if (is_array($data)) {
+            return isset($data['email']) && is_string($data['email']) ? trim($data['email']) : '';
+        }
+
+        if ((is_int($data) || (is_string($data) && ctype_digit($data))) && isset(static::$deletedCustomerEmails[(int) $data])) {
+            return trim(static::$deletedCustomerEmails[(int) $data]);
+        }
+
+        return '';
+    }
+
+    /**
+     * Key of an email unsubscribed from a Newsman list in this request.
+     */
+    protected function getErasedEmailListKey(string $email, Config $config, ?ShopConstraint $shopConstraint): string
+    {
+        return strtolower(trim($email)) . '|' . $config->getUserId($shopConstraint) . '|' . $config->getListId($shopConstraint);
     }
 
     /**

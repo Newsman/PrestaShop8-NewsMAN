@@ -146,3 +146,9 @@ Yes. In a PrestaShop multi-shop setup, you can configure different lists, segmen
 ### What happens when a customer subscribes to the newsletter?
 
 When a customer subscribes through the newsletter form, account registration, or their account settings page, the module automatically sends the subscription to Newsman using the configured list and segment. If Double Opt-in is enabled, Newsman will send a confirmation email first.
+
+### What happens when I erase a person's data with the Official GDPR compliance module?
+
+When you remove a person's data in the **Personal data management** tab of the Official GDPR compliance module (psgdpr), for a customer account or for an email only (for example a newsletter subscriber without an account), the module unsubscribes that email from the Newsman list of every shop right away, without a confirmation email. It does this even if the shop has no subscription for that email, because the email may have reached the Newsman list in other ways. If Newsman cannot be reached, the error is written to the module logs and the erasure in PrestaShop still completes. The contact stays in Newsman as unsubscribed; to delete it completely, use your Newsman account.
+
+Newsman appears in the GDPR module's list of compliant modules. It also appears in that module's **Consent checkbox customization** tab, where its setting has no effect: Newsman has no storefront form of its own (the newsletter form belongs to the Newsletter subscription module). The module stores no personal data of its own in PrestaShop, so it adds nothing to the personal data export.
