@@ -147,8 +147,16 @@ Da. Intr-o configuratie PrestaShop multi-shop, puteti configura liste, segmente,
 
 Cand un client se aboneaza prin formularul de newsletter, inregistrarea contului sau pagina de setari a contului, modulul trimite automat abonarea catre Newsman folosind lista si segmentul configurate. Daca Double Opt-in este activat, Newsman va trimite mai intai un email de confirmare.
 
-### Ce se intampla cand sterg datele unei persoane cu modulul Official GDPR compliance?
+### Ce se intampla cand sterg un client sau datele unei persoane?
 
-Cand stergeti datele unei persoane din tab-ul **Personal data management** al modulului Official GDPR compliance (psgdpr), pentru un cont de client sau doar pentru un email (de exemplu un abonat la newsletter fara cont), modulul dezaboneaza imediat acel email din lista Newsman a fiecarui magazin, fara email de confirmare. Face acest lucru chiar daca magazinul nu are o abonare pentru acel email, deoarece emailul poate fi adaugat in lista Newsman si pe alte cai. Daca Newsman nu poate fi contactat, eroarea este scrisa in logurile modulului, iar stergerea din PrestaShop se finalizeaza oricum. Contactul ramane in Newsman ca dezabonat; pentru a-l sterge complet, folositi contul dvs. Newsman.
+Cand stergeti un client (**Admin > Customers > Customers**, unul cate unul sau in masa, cu oricare optiune de stergere; prin webservice; sau cu modulul Official GDPR compliance), modulul cere Newsman sa anonimizeze acel email in lista Newsman a magazinului clientului si a celorlalte magazine din grupul sau, cand grupul partajeaza clientii. Cand stergeti datele unei persoane din tab-ul **Personal data management** al modulului Official GDPR compliance (psgdpr), pentru un cont de client sau doar pentru un email (de exemplu un abonat la newsletter fara cont), modulul cere Newsman sa anonimizeze acel email in lista Newsman a fiecarui magazin.
+
+Acest lucru se intampla indiferent de starea abonarii la newsletter in magazin (abonat, dezabonat sau niciodata abonat), deoarece emailul poate fi adaugat in lista Newsman si pe alte cai. Newsman inlocuieste emailul cu o adresa anonima si dezaboneaza contactul, in fundal, de obicei in mai putin de un minut. Un email care nu este in lista Newsman este ignorat. Daca Newsman nu poate fi contactat, eroarea este scrisa in logurile modulului, iar stergerea din PrestaShop se finalizeaza oricum.
+
+Dezabonarea (casuta de newsletter din contul clientului, comutatorul de newsletter din admin, formularul de newsletter) doar dezaboneaza emailul in Newsman, nu il anonimizeaza.
+
+Un email anonimizat poate fi adaugat din nou in Newsman: o abonare noua, un import de abonati sau o sincronizare care inca gaseste emailul (de exemplu in abonatii modulului Newsletter subscription sau intr-un fisier pe care il importati in Newsman) il adauga inapoi ca abonat. De aceea stergeti emailul persoanei si din celelalte date ale magazinului si din fisierele de import.
+
+Stergerile care ocolesc stergerea din PrestaShop (de exemplu **Delete all customers before import** din **Admin > Advanced Parameters > Import**) nu sunt trimise catre Newsman. Stergeti acele contacte din contul dvs. Newsman.
 
 Newsman apare in lista de module conforme a modulului GDPR. Apare si in tab-ul **Consent checkbox customization** al acelui modul, unde setarea sa nu are niciun efect: Newsman nu are un formular propriu pe storefront (formularul de newsletter apartine modulului Newsletter subscription). Modulul nu stocheaza date personale proprii in PrestaShop, deci nu adauga nimic la exportul datelor personale.

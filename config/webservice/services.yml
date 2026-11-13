@@ -1,0 +1,10 @@
+# Module services in the webservice (REST API) container, so customer updates and deletes sent
+# through the webservice reach Newsman.
+imports:
+  - { resource: ../common.yml }
+
+services:
+  _defaults:
+    public: true
+    autowire: true
+    autoconfigure: true

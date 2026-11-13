@@ -147,8 +147,16 @@ Yes. In a PrestaShop multi-shop setup, you can configure different lists, segmen
 
 When a customer subscribes through the newsletter form, account registration, or their account settings page, the module automatically sends the subscription to Newsman using the configured list and segment. If Double Opt-in is enabled, Newsman will send a confirmation email first.
 
-### What happens when I erase a person's data with the Official GDPR compliance module?
+### What happens when I delete a customer or erase a person's data?
 
-When you remove a person's data in the **Personal data management** tab of the Official GDPR compliance module (psgdpr), for a customer account or for an email only (for example a newsletter subscriber without an account), the module unsubscribes that email from the Newsman list of every shop right away, without a confirmation email. It does this even if the shop has no subscription for that email, because the email may have reached the Newsman list in other ways. If Newsman cannot be reached, the error is written to the module logs and the erasure in PrestaShop still completes. The contact stays in Newsman as unsubscribed; to delete it completely, use your Newsman account.
+When you delete a customer (**Admin > Customers > Customers**, one by one or in bulk, with either delete option; the webservice; or the Official GDPR compliance module), the module asks Newsman to anonymise that email in the Newsman list of the customer's shop, and of the other shops of its shop group when the group shares customers. When you remove a person's data in the **Personal data management** tab of the Official GDPR compliance module (psgdpr), for a customer account or for an email only (for example a newsletter subscriber without an account), the module asks Newsman to anonymise that email in the Newsman list of every shop.
+
+This happens whatever the newsletter status in the shop (subscribed, unsubscribed or never subscribed), because the email may have reached the Newsman list in other ways. Newsman replaces the email with an anonymous address and unsubscribes the contact, in the background, usually within a minute. An email that is not on the Newsman list is skipped. If Newsman cannot be reached, the error is written to the module logs and the delete or the erasure in PrestaShop still completes.
+
+Unsubscribing (the newsletter box of the customer account, the newsletter switch in the admin, the newsletter form) only unsubscribes the email in Newsman, it does not anonymise it.
+
+An anonymised email can be added to Newsman again: a new subscription, a subscriber import or a sync that still finds the email (for example in the subscribers of the Newsletter subscription module, or in a file you import into Newsman) adds it back as a subscriber. So also remove the person's email from the other data of your shop and from your import files.
+
+Removals that skip the PrestaShop delete (for example **Delete all customers before import** in **Admin > Advanced Parameters > Import**) are not sent to Newsman. Delete those contacts in your Newsman account.
 
 Newsman appears in the GDPR module's list of compliant modules. It also appears in that module's **Consent checkbox customization** tab, where its setting has no effect: Newsman has no storefront form of its own (the newsletter form belongs to the Newsletter subscription module). The module stores no personal data of its own in PrestaShop, so it adds nothing to the personal data export.

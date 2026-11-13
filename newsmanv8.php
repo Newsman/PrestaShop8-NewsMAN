@@ -60,6 +60,7 @@ class Newsmanv8 extends Module
         // Service layer hooks (before API calls).
         'actionNewsmanServiceSubscribeEmailBefore',
         'actionNewsmanServiceUnsubscribeEmailBefore',
+        'actionNewsmanServiceAnonymiseEmailBefore',
         'actionNewsmanServiceInitSubscribeEmailBefore',
         'actionNewsmanServiceExportCsvSubscribersBefore',
         'actionNewsmanServiceAddSubscriberBefore',
@@ -119,13 +120,13 @@ class Newsmanv8 extends Module
     ];
 
     /**
-     * Emails already unsubscribed from a Newsman list in this request, by a personal data erasure or by
+     * Emails already anonymised in a Newsman list in this request, by a personal data erasure or by
      * a customer delete, as "email|user ID|list ID" keys, so the other hook does not send the same call
      * again (psgdpr 1.x runs the erasure hook before deleting the customer, psgdpr 2.x deletes first).
      *
      * @var array<string, bool>
      */
-    protected static array $unsubscribedEmailLists = [];
+    protected static array $anonymisedEmailLists = [];
 
     /**
      * Emails of the customers deleted in this request, by customer ID: psgdpr 2.x deletes the customer
@@ -139,7 +140,7 @@ class Newsmanv8 extends Module
     {
         $this->name = 'newsmanv8';
         $this->tab = 'advertising_marketing';
-        $this->version = '8.0.10';
+        $this->version = '8.0.11';
         $this->author = 'Newsman by Dazoot';
         $this->module_key = '00c167886eb6f3c7d318ea806a563b32';
         $this->need_instance = 0;
@@ -428,7 +429,8 @@ class Newsmanv8 extends Module
     }
 
     /**
-     * Hook: customer update (newsletter toggle, active toggle, soft delete) -> subscribe/unsubscribe.
+     * Hook: customer update. Newsletter toggle -> subscribe/unsubscribe. Customer delete that keeps
+     * the customer as deleted (so the email cannot register again) -> anonymise in Newsman.
      *
      * Area: Front, Admin
      *
@@ -451,6 +453,12 @@ class Newsmanv8 extends Module
 
         $existingCustomer = new Customer($customer->id);
         if (!Validate::isLoadedObject($existingCustomer)) {
+            return;
+        }
+
+        if (!$existingCustomer->deleted && $customer->deleted) {
+            $this->anonymiseDeletedCustomer($customer);
+
             return;
         }
 
@@ -480,20 +488,12 @@ class Newsmanv8 extends Module
             } elseif (!$newNewsletter && $oldNewsletter) {
                 $action->unsubscribe($customer->email, $shopConstraint);
             }
-
-            return;
-        }
-
-        $oldDeleted = (bool) $existingCustomer->deleted;
-        $newDeleted = (bool) $customer->deleted;
-
-        if (!$oldDeleted && $newDeleted && $oldNewsletter) {
-            $action->unsubscribe($customer->email, $shopConstraint);
         }
     }
 
     /**
-     * Hook: customer hard delete -> unsubscribe from Newsman.
+     * Hook: customer delete (Customers > Delete or bulk delete, webservice, GDPR module) -> anonymise the
+     * email in Newsman, whatever the customer's newsletter status.
      *
      * Area: Front, Admin
      *
@@ -503,7 +503,7 @@ class Newsmanv8 extends Module
      */
     public function hookActionObjectCustomerDeleteBefore(array $params): void
     {
-        if (!isset($params['object'])) {
+        if (!isset($params['object']) || !$params['object'] instanceof Customer) {
             return;
         }
 
@@ -514,37 +514,54 @@ class Newsmanv8 extends Module
             static::$deletedCustomerEmails[(int) $customer->id] = (string) $customer->email;
         }
 
-        if (empty($customer->email) || !$customer->newsletter) {
+        $this->anonymiseDeletedCustomer($customer);
+    }
+
+    /**
+     * Anonymise the email of a deleted customer in the Newsman list of every shop that can see the
+     * customer (its shop, plus the shops of its shop group when the group shares customers), once per
+     * Newsman list in this request. A Newsman error is logged and never stops the delete.
+     */
+    protected function anonymiseDeletedCustomer(Customer $customer): void
+    {
+        $email = trim((string) $customer->email);
+        if ('' === $email || !Validate::isEmail($email)) {
             return;
         }
 
-        $shopConstraint = Config::shopConstraint((int) $customer->id_shop ?: null);
-        /** @var Config $config */
-        $config = $this->get(Config::class);
-        if (!$config->isEnabled($shopConstraint)) {
-            return;
-        }
+        try {
+            $shopId = (int) $customer->id_shop;
+            if ($shopId <= 0 && isset($this->context->shop->id)) {
+                $shopId = (int) $this->context->shop->id;
+            }
+            if ($shopId <= 0) {
+                return;
+            }
 
-        // psgdpr 1.x runs actionDeleteGDPRCustomer first and then deletes the customer:
-        // the email may already be unsubscribed from this list in this request.
-        $key = $this->getErasedEmailListKey($customer->email, $config, $shopConstraint);
-        if (isset(static::$unsubscribedEmailLists[$key])) {
-            return;
-        }
-        static::$unsubscribedEmailLists[$key] = true;
+            /** @var Config $config */
+            $config = $this->get(Config::class);
+            /** @var SubscribeEmailAction $action */
+            $action = $this->get(SubscribeEmailAction::class);
 
-        /** @var SubscribeEmailAction $action */
-        $action = $this->get(SubscribeEmailAction::class);
-        $action->unsubscribe($customer->email, $shopConstraint);
+            foreach ($config->getShopConstraintsPerListForCustomerShop($shopId) as $shopConstraint) {
+                // psgdpr 1.x runs actionDeleteGDPRCustomer first and then deletes the customer:
+                // the email may already be anonymised in this list in this request.
+                if ($this->markAnonymised($email, $config, $shopConstraint)) {
+                    $action->anonymise($email, $shopConstraint);
+                }
+            }
+        } catch (Throwable $e) {
+            $this->logThrowable($e);
+        }
     }
 
     /**
      * Hook: personal data erasure in the Official GDPR compliance module (psgdpr), for a customer
      * account or for an email only (e.g. a newsletter subscriber without an account).
      *
-     * The email is unsubscribed right away from the Newsman list of every shop, whatever the shop
-     * stores locally, because it can be on the list from other sources. A Newsman error is logged
-     * and never stops the erasure.
+     * The email is anonymised in the Newsman list of every shop, whatever the shop stores locally,
+     * because it can be on the list from other sources. A Newsman error is logged and never stops
+     * the erasure.
      *
      * Area: Admin
      *
@@ -571,25 +588,15 @@ class Newsmanv8 extends Module
             $action = $this->get(SubscribeEmailAction::class);
 
             foreach ($config->getShopConstraintsPerList() as $shopConstraint) {
-                // psgdpr 2.x: the customer delete may already have unsubscribed the email from this list.
-                $key = $this->getErasedEmailListKey($email, $config, $shopConstraint);
-                if (isset(static::$unsubscribedEmailLists[$key])) {
-                    continue;
-                }
-                static::$unsubscribedEmailLists[$key] = true;
-                if (!$action->unsubscribeForErasure($email, $shopConstraint)) {
+                // psgdpr 2.x: the customer delete may already have anonymised the email in this list.
+                if ($this->markAnonymised($email, $config, $shopConstraint)
+                    && !$action->anonymise($email, $shopConstraint)) {
                     $done = false;
                 }
             }
         } catch (Throwable $e) {
             $done = false;
-            try {
-                /** @var Logger $logger */
-                $logger = $this->get(Logger::class);
-                $logger->logException($e);
-            } catch (Throwable $loggerError) {
-                // Logging is best-effort, the erasure must go on.
-            }
+            $this->logThrowable($e);
         }
 
         if ($done) {
@@ -597,7 +604,7 @@ class Newsmanv8 extends Module
         }
 
         return (string) json_encode($this->trans(
-            'Newsman: the email could not be unsubscribed from the Newsman list. See the Newsman logs.',
+            'Newsman: the email could not be anonymised in the Newsman list. See the Newsman logs.',
             [],
             'Modules.Newsmanv8.Admin'
         ));
@@ -643,11 +650,35 @@ class Newsmanv8 extends Module
     }
 
     /**
-     * Key of an email unsubscribed from a Newsman list in this request.
+     * Remember that an email is anonymised in the Newsman list of a shop in this request.
+     *
+     * @return bool False when it already was
      */
-    protected function getErasedEmailListKey(string $email, Config $config, ?ShopConstraint $shopConstraint): string
+    protected function markAnonymised(string $email, Config $config, ShopConstraint $shopConstraint): bool
     {
-        return strtolower(trim($email)) . '|' . $config->getUserId($shopConstraint) . '|' . $config->getListId($shopConstraint);
+        $key = strtolower(trim($email)) . '|' . $config->getUserId($shopConstraint) . '|' . $config->getListId($shopConstraint);
+        if (isset(static::$anonymisedEmailLists[$key])) {
+            return false;
+        }
+        static::$anonymisedEmailLists[$key] = true;
+
+        return true;
+    }
+
+    /**
+     * Log an error of a customer delete or a personal data erasure. Best-effort: the module services may
+     * be unavailable (e.g. a script without the PrestaShop service container), and the delete must go on.
+     */
+    protected function logThrowable(Throwable $e): void
+    {
+        try {
+            $logger = $this->get(Logger::class);
+            if ($logger instanceof Logger) {
+                $logger->logException($e);
+            }
+        } catch (Throwable $loggerError) {
+            // Nothing else to do.
+        }
     }
 
     /**
@@ -851,6 +882,10 @@ class Newsmanv8 extends Module
     }
 
     public function hookActionNewsmanServiceUnsubscribeEmailBefore(array $params): void
+    {
+    }
+
+    public function hookActionNewsmanServiceAnonymiseEmailBefore(array $params): void
     {
     }
 

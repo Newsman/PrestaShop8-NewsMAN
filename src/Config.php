@@ -471,6 +471,37 @@ class Config
     }
 
     /**
+     * Get one shop constraint per distinct Newsman account and list across the enabled shops that can
+     * see the customers of the given shop: the shop itself, plus the other shops of its shop group when
+     * the group shares customers. The given shop comes first.
+     *
+     * @return array<string, ShopConstraint> Keyed by "user ID|list ID"
+     */
+    public function getShopConstraintsPerListForCustomerShop(int $shopId): array
+    {
+        $shopIds = [$shopId];
+        foreach (\Shop::getSharedShops($shopId, \Shop::SHARE_CUSTOMER) as $sharedShopId) {
+            if (!in_array((int) $sharedShopId, $shopIds, true)) {
+                $shopIds[] = (int) $sharedShopId;
+            }
+        }
+
+        $constraints = [];
+        foreach ($shopIds as $id) {
+            $sc = ShopConstraint::shop($id);
+            if (!$this->isEnabled($sc)) {
+                continue;
+            }
+            $key = $this->getUserId($sc) . '|' . $this->getListId($sc);
+            if (!isset($constraints[$key])) {
+                $constraints[$key] = $sc;
+            }
+        }
+
+        return $constraints;
+    }
+
+    /**
      * Check if any shop in the given list has remarketing send telephone enabled.
      *
      * @param array<int> $shopIds

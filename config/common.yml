@@ -42,6 +42,7 @@ services:
   # Services (extend AbstractService)
   PrestaShop\Module\Newsmanv8\Service\SubscribeEmail: ~
   PrestaShop\Module\Newsmanv8\Service\UnsubscribeEmail: ~
+  PrestaShop\Module\Newsmanv8\Service\AnonymiseEmail: ~
   PrestaShop\Module\Newsmanv8\Service\InitSubscribeEmail: ~
   PrestaShop\Module\Newsmanv8\Service\InitUnsubscribeEmail: ~
   PrestaShop\Module\Newsmanv8\Service\GetByEmail: ~

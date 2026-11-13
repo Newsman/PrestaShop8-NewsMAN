@@ -274,9 +274,9 @@
         <source>This step is required for the module to work properly. It grants Newsman.app API access to your store.</source>
         <target state="final">Dieser Schritt ist erforderlich, damit das Modul korrekt funktioniert. Er gewährt Newsman.app API-Zugriff auf Ihren Shop.</target>
       </trans-unit>
-      <trans-unit id="ad526950bf5ee4e8dd1f1829d58fa055" approved="yes">
-        <source>Newsman: the email could not be unsubscribed from the Newsman list. See the Newsman logs.</source>
-        <target state="final">Newsman: Die E-Mail-Adresse konnte nicht von der Newsman-Liste abgemeldet werden. Siehe Newsman-Logs.</target>
+      <trans-unit id="bd5a4dd1d3bb4dbbf4c650f20e732e0a" approved="yes">
+        <source>Newsman: the email could not be anonymised in the Newsman list. See the Newsman logs.</source>
+        <target state="final">Newsman: Die E-Mail-Adresse konnte in der Newsman-Liste nicht anonymisiert werden. Siehe Newsman-Logs.</target>
       </trans-unit>
     </body>
   </file>

@@ -13,6 +13,8 @@ namespace PrestaShop\Module\Newsmanv8\Action\Subscribe;
 
 use PrestaShop\Module\Newsmanv8\Config;
 use PrestaShop\Module\Newsmanv8\Logger;
+use PrestaShop\Module\Newsmanv8\Service\AnonymiseEmail;
+use PrestaShop\Module\Newsmanv8\Service\Context\AnonymiseEmail as AnonymiseContext;
 use PrestaShop\Module\Newsmanv8\Service\Context\InitSubscribeEmail as InitSubscribeContext;
 use PrestaShop\Module\Newsmanv8\Service\Context\Segment\AddSubscriber as AddSubscriberContext;
 use PrestaShop\Module\Newsmanv8\Service\Context\SubscribeEmail as SubscribeContext;
@@ -31,7 +33,8 @@ if (!defined('_PS_VERSION_')) {
 class Email
 {
     /**
-     * Newsman API error code of subscriber.saveUnsubscribe for an email that is not on the list.
+     * Newsman API error code for an email that is not on the list (subscriber.saveUnsubscribe,
+     * subscriber.anonymiseEmail).
      */
     public const API_CODE_NO_SUCH_SUBSCRIBER = 121;
 
@@ -42,6 +45,7 @@ class Email
     protected UnsubscribeEmail $unsubscribeEmail;
     protected AddSubscriber $addSubscriber;
     protected IpAddress $ipAddress;
+    protected AnonymiseEmail $anonymiseEmail;
 
     public function __construct(
         Config $config,
@@ -51,6 +55,7 @@ class Email
         UnsubscribeEmail $unsubscribeEmail,
         AddSubscriber $addSubscriber,
         IpAddress $ipAddress,
+        AnonymiseEmail $anonymiseEmail,
     ) {
         $this->config = $config;
         $this->logger = $logger;
@@ -59,6 +64,7 @@ class Email
         $this->unsubscribeEmail = $unsubscribeEmail;
         $this->addSubscriber = $addSubscriber;
         $this->ipAddress = $ipAddress;
+        $this->anonymiseEmail = $anonymiseEmail;
     }
 
     public function isAllow(?ShopConstraint $shopConstraint = null): bool
@@ -239,43 +245,32 @@ class Email
     }
 
     /**
-     * Unsubscribe an email right away because of a personal data erasure request.
+     * Anonymise an email in the Newsman list of the given shop, because the person was deleted or their
+     * personal data was erased. Newsman answers right away and anonymises the contact in the background.
      *
-     * Always a direct unsubscribe (no confirmation email, also with Double Opt-in), sent with the
-     * Newsman account of the given shop. An email that is not on the list counts as done.
+     * Sent with the Newsman account of the given shop, whatever the subscription status in the shop.
+     * An email that is not on the list counts as done.
      *
      * @return bool False when Newsman could not be reached or returned another error
      */
-    public function unsubscribeForErasure(string $email, ShopConstraint $shopConstraint): bool
+    public function anonymise(string $email, ShopConstraint $shopConstraint): bool
     {
         if (empty($email) || !$this->isAllow($shopConstraint)) {
             return true;
         }
 
-        $hookResponses = \Hook::exec('actionNewsmanBeforeUnsubscribe', [
-            'email' => $email,
-        ], null, true);
-        if (is_array($hookResponses) && $this->isHookCancelled($hookResponses)) {
-            return true;
-        }
-
-        $context = new UnsubscribeContext();
+        $context = new AnonymiseContext();
         $context->setListId($this->config->getListId($shopConstraint))
-            ->setEmail($email)
-            ->setIp($this->ipAddress->getIp());
+            ->setEmail($email);
 
         try {
-            $this->unsubscribeEmail->executeForShop($context, $shopConstraint);
-
-            \Hook::exec('actionNewsmanAfterUnsubscribe', [
-                'email' => $email,
-            ]);
+            $this->anonymiseEmail->executeForShop($context, $shopConstraint);
 
             return true;
         } catch (\Throwable $e) {
             if ($e instanceof \RuntimeException && self::API_CODE_NO_SUCH_SUBSCRIBER === $e->getCode()) {
                 $this->logger->info(sprintf(
-                    'Email %s is not on the Newsman list %s, nothing to unsubscribe',
+                    'Email %s is not on the Newsman list %s, nothing to anonymise',
                     $email,
                     $context->getListId()
                 ));
