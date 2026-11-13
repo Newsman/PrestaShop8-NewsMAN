@@ -62,6 +62,8 @@ Daca trebuie sa reconectati modulul la un alt cont Newsman, sau daca credentiale
 
 - **Double Opt-in** - Cand este activat, noii abonati primesc un email de confirmare si trebuie sa faca click pe un link pentru a-si confirma abonarea. Aceasta optiune este recomandata pentru conformitatea GDPR. Cand este dezactivat, abonatii sunt adaugati imediat in lista.
 
+- **Anonymise in Newsman when customers are deleted** - Activat implicit. Cand este activat, emailul unui client pe care il stergeti este anonimizat in lista Newsman. Cand este dezactivat, emailul este doar dezabonat din lista Newsman, fara email de confirmare. Daca mai multe magazine folosesc aceeasi lista Newsman si unul dintre ele are aceasta optiune dezactivata, emailul este doar dezabonat. Stergerile datelor personale cu modulul Official GDPR compliance sunt intotdeauna anonimizate. Vedeti "Ce se intampla cand sterg un client sau datele unei persoane?" mai jos.
+
 - **Send User IP Address** - Cand este activat, adresa IP a vizitatorului este trimisa catre Newsman cand se aboneaza sau dezaboneaza. Acest lucru poate ajuta la analiza si conformitate. Cand este dezactivat, se trimite in schimb adresa **Server IP**.
 
 - **Server IP** - O adresa IP de rezerva folosita cand "Send User IP Address" este dezactivat. De obicei puteti lasa acest camp gol si adresa IP a serverului va fi detectata automat.
@@ -149,7 +151,9 @@ Cand un client se aboneaza prin formularul de newsletter, inregistrarea contului
 
 ### Ce se intampla cand sterg un client sau datele unei persoane?
 
-Cand stergeti un client (**Admin > Customers > Customers**, unul cate unul sau in masa, cu oricare optiune de stergere; prin webservice; sau cu modulul Official GDPR compliance), modulul cere Newsman sa anonimizeze acel email in lista Newsman a magazinului clientului si a celorlalte magazine din grupul sau, cand grupul partajeaza clientii. Cand stergeti datele unei persoane din tab-ul **Personal data management** al modulului Official GDPR compliance (psgdpr), pentru un cont de client sau doar pentru un email (de exemplu un abonat la newsletter fara cont), modulul cere Newsman sa anonimizeze acel email in lista Newsman a fiecarui magazin.
+Cand stergeti un client (**Admin > Customers > Customers**, unul cate unul sau in masa, cu oricare optiune de stergere; prin webservice; sau cu un alt modul), modulul cere Newsman sa anonimizeze acel email in lista Newsman a magazinului clientului si a celorlalte magazine din grupul sau, cand grupul partajeaza clientii. Cand **Anonymise in Newsman when customers are deleted** (Setari Generale) este dezactivat, modulul doar dezaboneaza acel email din acele liste Newsman, fara email de confirmare. Daca mai multe magazine folosesc aceeasi lista Newsman si unul dintre ele are optiunea dezactivata, emailul este doar dezabonat din acea lista.
+
+Cand stergeti datele unei persoane din tab-ul **Personal data management** al modulului Official GDPR compliance (psgdpr), pentru un cont de client sau doar pentru un email (de exemplu un abonat la newsletter fara cont), modulul cere Newsman sa anonimizeze acel email in lista Newsman a fiecarui magazin, indiferent de optiunea de mai sus (si cand acea stergere sterge si contul clientului).
 
 Acest lucru se intampla indiferent de starea abonarii la newsletter in magazin (abonat, dezabonat sau niciodata abonat), deoarece emailul poate fi adaugat in lista Newsman si pe alte cai. Newsman inlocuieste emailul cu o adresa anonima si dezaboneaza contactul, in fundal, de obicei in mai putin de un minut. Un email care nu este in lista Newsman este ignorat. Daca Newsman nu poate fi contactat, eroarea este scrisa in logurile modulului, iar stergerea din PrestaShop se finalizeaza oricum.
 
@@ -158,5 +162,9 @@ Dezabonarea (casuta de newsletter din contul clientului, comutatorul de newslett
 Un email anonimizat poate fi adaugat din nou in Newsman: o abonare noua, un import de abonati sau o sincronizare care inca gaseste emailul (de exemplu in abonatii modulului Newsletter subscription sau intr-un fisier pe care il importati in Newsman) il adauga inapoi ca abonat. De aceea stergeti emailul persoanei si din celelalte date ale magazinului si din fisierele de import.
 
 Stergerile care ocolesc stergerea din PrestaShop (de exemplu **Delete all customers before import** din **Admin > Advanced Parameters > Import**) nu sunt trimise catre Newsman. Stergeti acele contacte din contul dvs. Newsman.
+
+### Ce se intampla cand import clienti?
+
+Un import de clienti (**Admin > Advanced Parameters > Import**, entitatea **Customers**) nu dezaboneaza si nu anonimizeaza niciodata emailuri in Newsman: cand fisierul seteaza **Newsletter** la 0 pentru un client existent, magazinul salveaza valoarea, dar emailul ramane abonat in Newsman. Cand fisierul seteaza **Newsletter** la 1 pentru un client existent care nu era abonat, emailul este abonat in Newsman. Pentru a dezabona contacte in masa, dezabonati-le din contul dvs. Newsman.
 
 Newsman apare in lista de module conforme a modulului GDPR. Apare si in tab-ul **Consent checkbox customization** al acelui modul, unde setarea sa nu are niciun efect: Newsman nu are un formular propriu pe storefront (formularul de newsletter apartine modulului Newsletter subscription). Modulul nu stocheaza date personale proprii in PrestaShop, deci nu adauga nimic la exportul datelor personale.

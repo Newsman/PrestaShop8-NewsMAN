@@ -245,6 +245,58 @@ class Email
     }
 
     /**
+     * Unsubscribe the email of a deleted customer from the Newsman list of the given shop, without a confirmation
+     * email (the "Anonymise in Newsman when customers are deleted" setting is off).
+     *
+     * Sent with the Newsman account of the given shop, whatever the subscription status in the shop.
+     * An email that is not on the list counts as done.
+     *
+     * @return bool False when Newsman could not be reached or returned another error
+     */
+    public function unsubscribeDeleted(string $email, ShopConstraint $shopConstraint): bool
+    {
+        if (empty($email) || !$this->isAllow($shopConstraint)) {
+            return true;
+        }
+
+        $hookResponses = \Hook::exec('actionNewsmanBeforeUnsubscribe', [
+            'email' => $email,
+        ], null, true);
+        if (is_array($hookResponses) && $this->isHookCancelled($hookResponses)) {
+            return true;
+        }
+
+        $context = new UnsubscribeContext();
+        $context->setListId($this->config->getListId($shopConstraint))
+            ->setEmail($email)
+            ->setIp($this->ipAddress->getIp());
+
+        try {
+            $this->unsubscribeEmail->executeForShop($context, $shopConstraint);
+
+            \Hook::exec('actionNewsmanAfterUnsubscribe', [
+                'email' => $email,
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            if ($e instanceof \RuntimeException && self::API_CODE_NO_SUCH_SUBSCRIBER === $e->getCode()) {
+                $this->logger->info(sprintf(
+                    'Email %s is not on the Newsman list %s, nothing to unsubscribe',
+                    $email,
+                    $context->getListId()
+                ));
+
+                return true;
+            }
+
+            $this->logger->logException($e);
+
+            return false;
+        }
+    }
+
+    /**
      * Anonymise an email in the Newsman list of the given shop, because the person was deleted or their
      * personal data was erased. Newsman answers right away and anonymises the contact in the background.
      *

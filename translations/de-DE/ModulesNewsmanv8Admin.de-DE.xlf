@@ -278,6 +278,14 @@
         <source>Newsman: the email could not be anonymised in the Newsman list. See the Newsman logs.</source>
         <target state="final">Newsman: Die E-Mail-Adresse konnte in der Newsman-Liste nicht anonymisiert werden. Siehe Newsman-Logs.</target>
       </trans-unit>
+      <trans-unit id="4d357a2316cb38bbc1e7b038fbb0628e" approved="yes">
+        <source>Anonymise in Newsman when customers are deleted</source>
+        <target state="final">In Newsman anonymisieren, wenn Kunden gel&#xF6;scht werden</target>
+      </trans-unit>
+      <trans-unit id="47f372e8b728e5fa77bf3f1a2cf39b14" approved="yes">
+        <source>On: the email of a deleted customer is anonymised in the Newsman list. Off: it is only unsubscribed, without a confirmation email. If several shops use the same Newsman list and one of them has this option off, the email is only unsubscribed. Personal data erasures with the Official GDPR compliance module are always anonymised.</source>
+        <target state="final">Ein: Die E-Mail-Adresse eines gel&#xF6;schten Kunden wird in der Newsman-Liste anonymisiert. Aus: Sie wird nur abgemeldet, ohne Best&#xE4;tigungs-E-Mail. Wenn mehrere Shops dieselbe Newsman-Liste verwenden und einer davon diese Option ausgeschaltet hat, wird die E-Mail-Adresse nur abgemeldet. L&#xF6;schungen personenbezogener Daten mit dem Modul Official GDPR compliance werden immer anonymisiert.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

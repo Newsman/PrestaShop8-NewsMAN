@@ -38,6 +38,7 @@ class Config
     public const KEY_SEGMENT_ID = 'NEWSMAN_SEGMENT_ID';
     public const KEY_AUTHENTICATE_TOKEN = 'NEWSMAN_AUTHENTICATE_TOKEN';
     public const KEY_DOUBLE_OPTIN = 'NEWSMAN_DOUBLE_OPTIN';
+    public const KEY_ANONYMISE_ON_CUSTOMER_DELETE = 'NEWSMAN_ANONYMISE_ON_CUSTOMER_DELETE';
     public const KEY_SEND_USER_IP = 'NEWSMAN_SEND_USER_IP';
     public const KEY_SERVER_IP = 'NEWSMAN_SERVER_IP';
     public const KEY_EXPORT_AUTH_HEADER_NAME = 'NEWSMAN_EXPORT_AUTH_HEADER_NAME';
@@ -87,6 +88,7 @@ class Config
             self::KEY_SEGMENT_ID,
             self::KEY_AUTHENTICATE_TOKEN,
             self::KEY_DOUBLE_OPTIN,
+            self::KEY_ANONYMISE_ON_CUSTOMER_DELETE,
             self::KEY_SEND_USER_IP,
             self::KEY_SERVER_IP,
             self::KEY_EXPORT_AUTH_HEADER_NAME,
@@ -133,6 +135,36 @@ class Config
     public function isDoubleOptin(?ShopConstraint $shopConstraint = null): bool
     {
         return (bool) $this->configuration->get(self::KEY_DOUBLE_OPTIN, false, $shopConstraint);
+    }
+
+    /**
+     * On: the email of a deleted customer is anonymised in the Newsman list. Off: it is only unsubscribed.
+     * A shop that never saved the setting anonymises (the default), so existing installs need no upgrade.
+     * The configuration form saves '1' / '0' (PrestaShop reads a NULL value as a missing one).
+     */
+    public function isAnonymiseOnCustomerDelete(?ShopConstraint $shopConstraint = null): bool
+    {
+        return (bool) $this->configuration->get(self::KEY_ANONYMISE_ON_CUSTOMER_DELETE, true, $shopConstraint);
+    }
+
+    /**
+     * Whether a deleted customer's email is anonymised in the Newsman list of the given shop. When several enabled
+     * shops use that Newsman list and one of them has the setting off, the email is only unsubscribed (the less
+     * destructive action wins).
+     */
+    public function isAnonymiseOnCustomerDeleteForList(ShopConstraint $shopConstraint): bool
+    {
+        if (!$this->isAnonymiseOnCustomerDelete($shopConstraint)) {
+            return false;
+        }
+
+        foreach ($this->getShopIdsByListId($this->getListId($shopConstraint)) as $shopId) {
+            if (!$this->isAnonymiseOnCustomerDelete(ShopConstraint::shop($shopId))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function isSendUserIp(?ShopConstraint $shopConstraint = null): bool

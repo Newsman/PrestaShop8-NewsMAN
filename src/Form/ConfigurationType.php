@@ -96,6 +96,15 @@ class ConfigurationType extends TranslatorAwareType
                 'required' => false,
                 'multistore_configuration_key' => Config::KEY_DOUBLE_OPTIN,
             ])
+            ->add('anonymise_on_customer_delete', SwitchType::class, [
+                'label' => $this->trans('Anonymise in Newsman when customers are deleted', 'Modules.Newsmanv8.Admin'),
+                'required' => false,
+                'help' => $this->trans(
+                    'On: the email of a deleted customer is anonymised in the Newsman list. Off: it is only unsubscribed, without a confirmation email. If several shops use the same Newsman list and one of them has this option off, the email is only unsubscribed. Personal data erasures with the Official GDPR compliance module are always anonymised.',
+                    'Modules.Newsmanv8.Admin'
+                ),
+                'multistore_configuration_key' => Config::KEY_ANONYMISE_ON_CUSTOMER_DELETE,
+            ])
             ->add('send_user_ip', SwitchType::class, [
                 'label' => $this->trans('Send User IP', 'Modules.Newsmanv8.Admin'),
                 'required' => false,

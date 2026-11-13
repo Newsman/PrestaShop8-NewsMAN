@@ -15,6 +15,7 @@ use PrestaShop\Module\Newsmanv8\Action\Subscribe\Email as SubscribeEmailAction;
 use PrestaShop\Module\Newsmanv8\Config;
 use PrestaShop\Module\Newsmanv8\Logger;
 use PrestaShop\Module\Newsmanv8\Remarketing\Renderer as RemarketingRenderer;
+use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Domain\Shop\ValueObject\ShopConstraint;
 
 if (!defined('_PS_VERSION_')) {
@@ -98,6 +99,12 @@ class Newsmanv8 extends Module
         'actionNewsmanExportRetrieverCouponsProcessCouponBefore',
     ];
 
+    /**
+     * Official GDPR compliance module and the Symfony route of its personal data erasure (psgdpr 2.x).
+     */
+    public const GDPR_MODULE_NAME = 'psgdpr';
+    public const GDPR_DELETE_ROUTE = 'psgdpr_api_delete_customer';
+
     public const MODULE_ADMIN_CONTROLLERS = [
         [
             'class_name' => 'Newsmanv8ConfigurationAdminParentController',
@@ -136,11 +143,19 @@ class Newsmanv8 extends Module
      */
     protected static array $deletedCustomerEmails = [];
 
+    /**
+     * Emails of deleted customers already unsubscribed from a Newsman list in this request, as
+     * "email|user ID|list ID" keys.
+     *
+     * @var array<string, bool>
+     */
+    protected static array $unsubscribedDeletedEmailLists = [];
+
     public function __construct()
     {
         $this->name = 'newsmanv8';
         $this->tab = 'advertising_marketing';
-        $this->version = '8.0.11';
+        $this->version = '8.0.12';
         $this->author = 'Newsman by Dazoot';
         $this->module_key = '00c167886eb6f3c7d318ea806a563b32';
         $this->need_instance = 0;
@@ -184,6 +199,7 @@ class Newsmanv8 extends Module
 
         $configuration->set(Config::KEY_ACTIVE, 1);
         $configuration->set(Config::KEY_SEND_USER_IP, 1);
+        $configuration->set(Config::KEY_ANONYMISE_ON_CUSTOMER_DELETE, 1);
         $configuration->set(Config::KEY_SERVER_IP, '');
         $configuration->set(Config::KEY_REMARKETING_STATUS, 1);
         $configuration->set(Config::KEY_REMARKETING_SEND_TELEPHONE, 1);
@@ -430,7 +446,11 @@ class Newsmanv8 extends Module
 
     /**
      * Hook: customer update. Newsletter toggle -> subscribe/unsubscribe. Customer delete that keeps
-     * the customer as deleted (so the email cannot register again) -> anonymise in Newsman.
+     * the customer as deleted (so the email cannot register again) -> anonymise or unsubscribe in Newsman,
+     * as set in "Anonymise in Newsman when customers are deleted".
+     *
+     * A customer CSV import (Advanced Parameters > Import) never unsubscribes nor anonymises: an imported
+     * newsletter = 0 sends nothing. An imported newsletter = 1 still subscribes.
      *
      * Area: Front, Admin
      *
@@ -457,7 +477,9 @@ class Newsmanv8 extends Module
         }
 
         if (!$existingCustomer->deleted && $customer->deleted) {
-            $this->anonymiseDeletedCustomer($customer);
+            if (!$this->isCustomerImport()) {
+                $this->sendDeletedCustomer($customer);
+            }
 
             return;
         }
@@ -485,15 +507,16 @@ class Newsmanv8 extends Module
                     [],
                     $shopConstraint
                 );
-            } elseif (!$newNewsletter && $oldNewsletter) {
+            } elseif (!$newNewsletter && $oldNewsletter && !$this->isCustomerImport()) {
                 $action->unsubscribe($customer->email, $shopConstraint);
             }
         }
     }
 
     /**
-     * Hook: customer delete (Customers > Delete or bulk delete, webservice, GDPR module) -> anonymise the
-     * email in Newsman, whatever the customer's newsletter status.
+     * Hook: customer delete (Customers > Delete or bulk delete, webservice, GDPR module, any module) -> anonymise
+     * or unsubscribe the email in Newsman, as set in "Anonymise in Newsman when customers are deleted", whatever
+     * the customer's newsletter status. A delete by the GDPR module always anonymises.
      *
      * Area: Front, Admin
      *
@@ -514,15 +537,19 @@ class Newsmanv8 extends Module
             static::$deletedCustomerEmails[(int) $customer->id] = (string) $customer->email;
         }
 
-        $this->anonymiseDeletedCustomer($customer);
+        $this->sendDeletedCustomer($customer);
     }
 
     /**
-     * Anonymise the email of a deleted customer in the Newsman list of every shop that can see the
-     * customer (its shop, plus the shops of its shop group when the group shares customers), once per
+     * Anonymise or unsubscribe the email of a deleted customer in the Newsman list of every shop that can see
+     * the customer (its shop, plus the shops of its shop group when the group shares customers), once per
      * Newsman list in this request. A Newsman error is logged and never stops the delete.
+     *
+     * Anonymise when "Anonymise in Newsman when customers are deleted" is on for every enabled shop using the
+     * list (a missing setting is on), and always for a delete by the GDPR module. Otherwise unsubscribe, except
+     * when the email was already anonymised in the list in this request.
      */
-    protected function anonymiseDeletedCustomer(Customer $customer): void
+    protected function sendDeletedCustomer(Customer $customer): void
     {
         $email = trim((string) $customer->email);
         if ('' === $email || !Validate::isEmail($email)) {
@@ -543,11 +570,16 @@ class Newsmanv8 extends Module
             /** @var SubscribeEmailAction $action */
             $action = $this->get(SubscribeEmailAction::class);
 
+            $gdprErasure = $this->isGdprErasureRequest();
             foreach ($config->getShopConstraintsPerListForCustomerShop($shopId) as $shopConstraint) {
-                // psgdpr 1.x runs actionDeleteGDPRCustomer first and then deletes the customer:
-                // the email may already be anonymised in this list in this request.
-                if ($this->markAnonymised($email, $config, $shopConstraint)) {
-                    $action->anonymise($email, $shopConstraint);
+                if ($gdprErasure || $config->isAnonymiseOnCustomerDeleteForList($shopConstraint)) {
+                    // psgdpr 1.x runs actionDeleteGDPRCustomer first and then deletes the customer:
+                    // the email may already be anonymised in this list in this request.
+                    if ($this->markAnonymised($email, $config, $shopConstraint)) {
+                        $action->anonymise($email, $shopConstraint);
+                    }
+                } elseif ($this->markUnsubscribedDeleted($email, $config, $shopConstraint)) {
+                    $action->unsubscribeDeleted($email, $shopConstraint);
                 }
             }
         } catch (Throwable $e) {
@@ -656,13 +688,82 @@ class Newsmanv8 extends Module
      */
     protected function markAnonymised(string $email, Config $config, ShopConstraint $shopConstraint): bool
     {
-        $key = strtolower(trim($email)) . '|' . $config->getUserId($shopConstraint) . '|' . $config->getListId($shopConstraint);
+        $key = $this->getEmailListKey($email, $config, $shopConstraint);
         if (isset(static::$anonymisedEmailLists[$key])) {
             return false;
         }
         static::$anonymisedEmailLists[$key] = true;
 
         return true;
+    }
+
+    /**
+     * Remember that the email of a deleted customer is unsubscribed from the Newsman list of a shop in this request.
+     *
+     * @return bool False when it already was, or when the email was already anonymised in that list
+     */
+    protected function markUnsubscribedDeleted(string $email, Config $config, ShopConstraint $shopConstraint): bool
+    {
+        $key = $this->getEmailListKey($email, $config, $shopConstraint);
+        if (isset(static::$anonymisedEmailLists[$key]) || isset(static::$unsubscribedDeletedEmailLists[$key])) {
+            return false;
+        }
+        static::$unsubscribedDeletedEmailLists[$key] = true;
+
+        return true;
+    }
+
+    /**
+     * "email|user ID|list ID" key of an email in the Newsman list of a shop.
+     */
+    protected function getEmailListKey(string $email, Config $config, ShopConstraint $shopConstraint): string
+    {
+        return strtolower(trim($email)) . '|' . $config->getUserId($shopConstraint) . '|' . $config->getListId($shopConstraint);
+    }
+
+    /**
+     * Whether this request is a personal data erasure of the Official GDPR compliance module (psgdpr), whose
+     * customer card deletes the customer: such a delete is always anonymised, whatever the delete setting.
+     * psgdpr 1.x runs its legacy admin controller (AdminAjaxPsgdpr), psgdpr 2.x the Symfony route
+     * psgdpr_api_delete_customer.
+     */
+    protected function isGdprErasureRequest(): bool
+    {
+        $controller = $this->context->controller ?? null;
+        if ($controller instanceof ModuleAdminController
+            && isset($controller->module->name)
+            && self::GDPR_MODULE_NAME === $controller->module->name) {
+            return true;
+        }
+
+        try {
+            $container = SymfonyContainer::getInstance();
+            if (null === $container || !$container->has('request_stack')) {
+                return false;
+            }
+            $request = $container->get('request_stack')->getCurrentRequest();
+
+            return null !== $request && self::GDPR_DELETE_ROUTE === $request->attributes->get('_route');
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Whether this request is a customer CSV import (Advanced Parameters > Import, run by the legacy AdminImport
+     * controller and its AJAX import steps).
+     */
+    protected function isCustomerImport(): bool
+    {
+        $controller = $this->context->controller ?? null;
+        if ($controller instanceof AdminImportControllerCore) {
+            return true;
+        }
+
+        // The import AJAX URL names the controller as "controller" (PrestaShop 9) or "tab" (PrestaShop 8).
+        return defined('_PS_ADMIN_DIR_')
+            && ('adminimport' === strtolower((string) Tools::getValue('controller'))
+                || 'adminimport' === strtolower((string) Tools::getValue('tab')));
     }
 
     /**

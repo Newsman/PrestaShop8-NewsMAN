@@ -41,6 +41,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
         'list_id',
         'segment_id',
         'double_optin',
+        'anonymise_on_customer_delete',
         'send_user_ip',
         'server_ip',
         'export_auth_header_name',
@@ -64,6 +65,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
         'list_id' => Config::KEY_LIST_ID,
         'segment_id' => Config::KEY_SEGMENT_ID,
         'double_optin' => Config::KEY_DOUBLE_OPTIN,
+        'anonymise_on_customer_delete' => Config::KEY_ANONYMISE_ON_CUSTOMER_DELETE,
         'send_user_ip' => Config::KEY_SEND_USER_IP,
         'server_ip' => Config::KEY_SERVER_IP,
         'export_auth_header_name' => Config::KEY_EXPORT_AUTH_HEADER_NAME,
@@ -115,6 +117,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
             'list_id' => (string) $this->configuration->get(Config::KEY_LIST_ID, '', $shopConstraint),
             'segment_id' => (string) $this->configuration->get(Config::KEY_SEGMENT_ID, '', $shopConstraint),
             'double_optin' => (bool) $this->configuration->get(Config::KEY_DOUBLE_OPTIN, false, $shopConstraint),
+            'anonymise_on_customer_delete' => $this->newsmanConfig->isAnonymiseOnCustomerDelete($shopConstraint),
             'send_user_ip' => (bool) $this->configuration->get(Config::KEY_SEND_USER_IP, false, $shopConstraint),
             'server_ip' => (string) $this->configuration->get(Config::KEY_SERVER_IP, '', $shopConstraint),
             'export_auth_header_name' => (string) $this->configuration->get(Config::KEY_EXPORT_AUTH_HEADER_NAME, '', $shopConstraint),
@@ -141,6 +144,12 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
             $oldUserId = (string) $this->configuration->get(Config::KEY_USER_ID, '', $shopConstraint);
             $oldApiKey = (string) $this->configuration->get(Config::KEY_API_KEY, '', $shopConstraint);
             $oldListId = (string) $this->configuration->get(Config::KEY_LIST_ID, '', $shopConstraint);
+
+            // Saved as '1' / '0': a false switch is saved as NULL, which PrestaShop reads as a missing value,
+            // and a missing value means on.
+            if (array_key_exists('anonymise_on_customer_delete', $configuration)) {
+                $configuration['anonymise_on_customer_delete'] = $configuration['anonymise_on_customer_delete'] ? '1' : '0';
+            }
 
             foreach (self::FIELD_MAP as $field => $configKey) {
                 $this->updateConfigurationValue($configKey, $field, $configuration, $shopConstraint);
@@ -175,6 +184,7 @@ class ConfigurationDataConfiguration extends AbstractMultistoreConfiguration
         $resolver->setAllowedTypes('list_id', ['string', 'null']);
         $resolver->setAllowedTypes('segment_id', ['string', 'null']);
         $resolver->setAllowedTypes('double_optin', 'bool');
+        $resolver->setAllowedTypes('anonymise_on_customer_delete', 'bool');
         $resolver->setAllowedTypes('send_user_ip', 'bool');
         $resolver->setAllowedTypes('server_ip', ['string', 'null']);
         $resolver->setAllowedTypes('export_auth_header_name', ['string', 'null']);
